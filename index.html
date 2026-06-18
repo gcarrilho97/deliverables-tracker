@@ -1,0 +1,1470 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Deliverables Tracker</title>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --bg: #0f1117; --surface: #1a1d27; --surface2: #242736;
+  --border: #2e3247; --text: #e8eaf0; --text-muted: #8b92a8;
+  --accent: #4f8ef7; --accent-h: #6ba3ff;
+  --high: #ef4444; --medium: #f59e0b; --low: #22c55e;
+  --todo-c: #8b92a8; --prog-c: #4f8ef7; --done-c: #22c55e;
+  --r: 8px; --sw: 224px;
+}
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); height: 100vh; display: flex; overflow: hidden; }
+
+/* ── Sidebar ── */
+.sidebar { width: var(--sw); background: var(--surface); border-right: 1px solid var(--border); display: flex; flex-direction: column; flex-shrink: 0; }
+.sb-header { padding: 18px 16px 14px; border-bottom: 1px solid var(--border); }
+.sb-title { font-size: 15px; font-weight: 700; letter-spacing: -.3px; }
+.sb-sub { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
+.sb-section { padding: 12px 16px 4px; font-size: 10px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: .8px; }
+.init-list { flex: 1; overflow-y: auto; padding: 4px 8px; }
+.init-item { display: flex; align-items: center; gap: 8px; padding: 7px 8px; border-radius: var(--r); cursor: pointer; font-size: 13px; color: var(--text-muted); transition: .12s; }
+.init-item:hover, .init-item.active { background: var(--surface2); color: var(--text); }
+.init-dot { width: 9px; height: 9px; border-radius: 50%; flex-shrink: 0; }
+.init-name { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.init-cnt { font-size: 11px; background: var(--border); color: var(--text-muted); padding: 1px 6px; border-radius: 10px; }
+.add-init-btn { margin: 4px 8px 12px; display: flex; align-items: center; gap: 6px; padding: 7px 8px; border-radius: var(--r); cursor: pointer; font-size: 13px; color: var(--text-muted); border: none; background: none; width: calc(100% - 16px); transition: .12s; }
+.add-init-btn:hover { background: var(--surface2); color: var(--text); }
+
+/* ── Main ── */
+.main { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+.topbar { display: flex; align-items: center; justify-content: space-between; padding: 14px 20px; border-bottom: 1px solid var(--border); flex-shrink: 0; }
+.topbar-l { display: flex; align-items: center; gap: 10px; }
+.page-title { font-size: 17px; font-weight: 700; letter-spacing: -.3px; }
+.task-badge { font-size: 12px; background: var(--surface2); color: var(--text-muted); padding: 2px 8px; border-radius: 10px; }
+.topbar-r { display: flex; align-items: center; gap: 8px; }
+.view-toggle { display: flex; background: var(--surface2); border-radius: var(--r); padding: 2px; }
+.view-btn { padding: 5px 13px; border-radius: 6px; border: none; background: none; color: var(--text-muted); font-size: 12px; font-weight: 500; cursor: pointer; transition: .12s; }
+.view-btn.active { background: var(--surface); color: var(--text); }
+.btn-primary { display: flex; align-items: center; gap: 5px; padding: 7px 14px; background: var(--accent); color: white; border: none; border-radius: var(--r); font-size: 13px; font-weight: 500; cursor: pointer; transition: .12s; }
+.btn-primary:hover { background: var(--accent-h); }
+.sync-wrap { position: relative; display: flex; }
+.sync-tip { display: none; position: absolute; top: calc(100% + 8px); right: 0; background: var(--surface2); border: 1px solid var(--border); border-radius: var(--r); padding: 10px 12px; min-width: 320px; z-index: 100; box-shadow: 0 4px 16px rgba(0,0,0,.4); }
+.sync-wrap:hover .sync-tip { display: block; }
+.sync-tip-label { font-size: 11px; color: var(--text-muted); margin-bottom: 6px; }
+.sync-tip-token { font-family: monospace; font-size: 12px; background: var(--bg); border: 1px solid var(--border); border-radius: 4px; padding: 6px 8px; cursor: pointer; word-break: break-all; color: var(--text); transition: .12s; }
+.sync-tip-token:hover { border-color: var(--accent); color: var(--accent); }
+
+/* Filter bar */
+.filter-bar { display: flex; align-items: center; gap: 6px; padding: 9px 20px; border-bottom: 1px solid var(--border); flex-shrink: 0; overflow-x: auto; }
+.filter-bar::-webkit-scrollbar { height: 0; }
+.f-btn { padding: 4px 10px; border-radius: 6px; border: 1px solid var(--border); background: none; color: var(--text-muted); font-size: 12px; cursor: pointer; white-space: nowrap; transition: .12s; }
+.f-btn.active { background: var(--accent); border-color: var(--accent); color: white; }
+.f-btn:hover:not(.active) { border-color: var(--text-muted); color: var(--text); }
+.f-sep { width: 1px; height: 16px; background: var(--border); flex-shrink: 0; margin: 0 2px; }
+
+/* Content */
+.content { flex: 1; overflow-y: auto; padding: 20px; }
+
+/* List view */
+.init-group { margin-bottom: 28px; }
+.group-header { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; }
+.group-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+.group-name { font-size: 12px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: .5px; }
+.group-cnt { font-size: 11px; background: var(--surface2); color: var(--text-muted); padding: 1px 6px; border-radius: 10px; }
+.task-list { display: flex; flex-direction: column; gap: 4px; }
+.task-row { display: grid; grid-template-columns: 18px 1fr auto auto auto auto; align-items: center; gap: 12px; padding: 10px 12px; background: var(--surface); border-radius: var(--r); border: 1px solid var(--border); cursor: pointer; transition: .12s; }
+.task-row:hover { border-color: var(--accent); background: var(--surface2); }
+.task-row.is-done .task-title { text-decoration: line-through; color: var(--text-muted); }
+.t-check { width: 16px; height: 16px; border-radius: 4px; border: 2px solid var(--border); display: flex; align-items: center; justify-content: center; flex-shrink: 0; cursor: pointer; transition: .12s; }
+.t-check:hover { border-color: var(--accent); }
+.t-check.checked { background: var(--done-c); border-color: var(--done-c); }
+.t-check.checked::after { content: '✓'; font-size: 10px; color: white; font-weight: 700; }
+.task-title { font-size: 14px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.task-actions { display: flex; gap: 3px; opacity: 0; transition: .12s; }
+.task-row:hover .task-actions { opacity: 1; }
+.icon-btn { background: none; border: none; color: var(--text-muted); cursor: pointer; padding: 3px 4px; border-radius: 4px; font-size: 12px; line-height: 1; transition: .12s; }
+.icon-btn:hover { background: var(--border); color: var(--text); }
+
+/* Badges */
+.s-badge { font-size: 11px; font-weight: 500; padding: 2px 8px; border-radius: 10px; white-space: nowrap; }
+.s-todo { background: rgba(139,146,168,.15); color: var(--todo-c); }
+.s-inprogress { background: rgba(79,142,247,.15); color: var(--prog-c); }
+.s-done { background: rgba(34,197,94,.15); color: var(--done-c); }
+.s-overdue { background: rgba(239,68,68,.15); color: var(--high); }
+.p-badge { font-size: 11px; font-weight: 600; padding: 2px 7px; border-radius: 10px; white-space: nowrap; }
+.p-high { background: rgba(239,68,68,.15); color: var(--high); }
+.p-medium { background: rgba(245,158,11,.15); color: var(--medium); }
+.p-low { background: rgba(34,197,94,.15); color: var(--low); }
+.due { font-size: 12px; color: var(--text-muted); white-space: nowrap; }
+.due.overdue { color: var(--high); font-weight: 500; }
+.due.soon { color: var(--medium); }
+
+/* Board view */
+.board { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; height: 100%; }
+.b-col { background: var(--surface); border-radius: 10px; border: 1px solid var(--border); display: flex; flex-direction: column; overflow: hidden; }
+.b-col-head { display: flex; align-items: center; justify-content: space-between; padding: 12px 14px; border-bottom: 1px solid var(--border); }
+.b-col-title { display: flex; align-items: center; gap: 7px; font-size: 13px; font-weight: 600; }
+.b-col-dot { width: 8px; height: 8px; border-radius: 50%; }
+.b-col-cnt { font-size: 11px; background: var(--surface2); color: var(--text-muted); padding: 1px 6px; border-radius: 10px; }
+.b-cards { flex: 1; overflow-y: auto; padding: 10px; display: flex; flex-direction: column; gap: 8px; }
+.b-card { background: var(--surface2); border: 1px solid var(--border); border-radius: var(--r); padding: 10px 12px; cursor: pointer; transition: .12s; }
+.b-card:hover { border-color: var(--accent); }
+.b-card.is-done .b-card-title { text-decoration: line-through; color: var(--text-muted); }
+.b-card-title { font-size: 13px; font-weight: 500; margin-bottom: 8px; line-height: 1.4; }
+.b-card-meta { display: flex; align-items: center; gap: 5px; flex-wrap: wrap; }
+.init-pill { display: flex; align-items: center; gap: 4px; font-size: 10px; color: var(--text-muted); background: var(--surface); padding: 2px 7px; border-radius: 10px; }
+.pill-dot { width: 6px; height: 6px; border-radius: 50%; }
+.b-card-notes { font-size: 11px; color: var(--text-muted); margin-top: 6px; line-height: 1.4; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+
+/* Empty state */
+.empty { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 60px 20px; color: var(--text-muted); text-align: center; }
+.empty-icon { font-size: 38px; margin-bottom: 12px; opacity: .4; }
+.empty-txt { font-size: 14px; margin-bottom: 16px; }
+
+/* Modal */
+.overlay { position: fixed; inset: 0; background: rgba(0,0,0,.65); display: flex; align-items: center; justify-content: center; z-index: 100; opacity: 0; pointer-events: none; transition: opacity .18s; }
+.overlay.open { opacity: 1; pointer-events: all; }
+.modal { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; width: 500px; max-width: 95vw; padding: 24px; transform: translateY(8px); transition: transform .18s; }
+.overlay.open .modal { transform: translateY(0); }
+.modal-title { font-size: 16px; font-weight: 700; margin-bottom: 20px; }
+.fg { margin-bottom: 16px; }
+.fl { display: block; font-size: 11px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: .5px; margin-bottom: 6px; }
+.fi, .fs, .fta { width: 100%; background: var(--surface2); border: 1px solid var(--border); border-radius: var(--r); color: var(--text); font-size: 14px; font-family: inherit; padding: 9px 12px; transition: .12s; outline: none; }
+.fi:focus, .fs:focus, .fta:focus { border-color: var(--accent); }
+.fta { resize: vertical; min-height: 80px; }
+.fs option { background: var(--surface2); }
+.fr { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.modal-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 20px; }
+.btn-sec { padding: 7px 16px; background: none; color: var(--text-muted); border: 1px solid var(--border); border-radius: var(--r); font-size: 13px; font-weight: 500; cursor: pointer; transition: .12s; }
+.btn-sec:hover { background: var(--surface2); color: var(--text); }
+.btn-del { padding: 7px 16px; background: rgba(239,68,68,.12); color: var(--high); border: 1px solid rgba(239,68,68,.25); border-radius: var(--r); font-size: 13px; font-weight: 500; cursor: pointer; margin-right: auto; }
+.btn-del:hover { background: rgba(239,68,68,.22); }
+.recurring-badge { font-size: 11px; font-weight: 600; padding: 2px 7px; border-radius: 10px; white-space: nowrap; background: rgba(167,139,250,.15); color: #a78bfa; }
+.gd-bar-recurring { background: rgba(167,139,250,.2); color: #c4b5fd; border: 1px dashed rgba(167,139,250,.45); }
+.gd-bar-recurring-now { background: rgba(167,139,250,.4); border-color: rgba(167,139,250,.8); }
+.done-row { display: flex; align-items: center; justify-content: space-between; }
+.done-toggle { display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 13px; color: var(--text-muted); }
+.done-toggle input { width: 15px; height: 15px; accent-color: var(--done-c); cursor: pointer; }
+.done-toggle-label { user-select: none; }
+.status-preview { font-size: 11px; font-weight: 500; padding: 2px 8px; border-radius: 10px; }
+.color-opts { display: flex; gap: 8px; flex-wrap: wrap; }
+.c-swatch { width: 24px; height: 24px; border-radius: 50%; cursor: pointer; border: 2px solid transparent; transition: .12s; }
+.c-swatch:hover { transform: scale(1.15); }
+.c-swatch.sel { border-color: white; transform: scale(1.1); }
+
+/* Edit init label */
+.init-item-inner { display: flex; align-items: center; gap: 8px; flex: 1; min-width: 0; }
+.init-edit-btn, .init-vis-btn { opacity: 0; background: none; border: none; color: var(--text-muted); cursor: pointer; font-size: 11px; padding: 2px; border-radius: 3px; flex-shrink: 0; }
+.init-item:hover .init-edit-btn, .init-item:hover .init-vis-btn { opacity: 1; }
+.init-edit-btn:hover, .init-vis-btn:hover { color: var(--text); background: var(--border); }
+.init-vis-btn.is-hidden { opacity: 1; color: var(--text-muted); }
+.init-hidden .init-name { opacity: .4; text-decoration: line-through; }
+.init-item.drag-over { border-top: 2px solid var(--accent); }
+.init-item.dragging  { opacity: .35; }
+
+/* Swimlane board */
+.swimlane-board { display: flex; flex-direction: column; gap: 0; min-width: 0; }
+.sl-header { display: grid; grid-template-columns: 160px repeat(3, 1fr); gap: 0; border-bottom: 1px solid var(--border); padding-bottom: 8px; margin-bottom: 4px; position: sticky; top: -20px; background: var(--bg); z-index: 10; padding-top: 4px; }
+.sl-label-spacer { }
+.sl-col-head { padding: 6px 10px; }
+.sl-col-head .b-col-title { font-size: 12px; font-weight: 600; }
+.swimlane { display: grid; grid-template-columns: 160px repeat(3, 1fr); border-bottom: 1px solid var(--border); }
+.swimlane:last-child { border-bottom: none; }
+.sl-label { display: flex; align-items: flex-start; gap: 7px; padding: 12px 10px; font-size: 12px; font-weight: 600; color: var(--text-muted); border-right: 1px solid var(--border); }
+.sl-label span:first-of-type { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.sl-cols { display: contents; }
+.sl-cell { padding: 8px; border-right: 1px solid var(--border); display: flex; flex-direction: column; gap: 6px; min-height: 60px; }
+.sl-cell:last-child { border-right: none; }
+.sl-empty { color: var(--text-muted); font-size: 11px; opacity: .4; text-align: center; padding: 12px 0; }
+
+/* Gantt v2 — day-level bars */
+.gd-outer { display: flex; flex-direction: column; height: 100%; }
+.gd-scroll { flex: 1; overflow: auto; position: relative; border-radius: 10px; border: 1px solid var(--border); }
+.gd-grid { display: grid; width: max-content; min-width: 100%; }
+
+.gd-corner  { position: sticky; left: 0; top: 0;    z-index: 5; background: var(--surface); border-right: 1px solid var(--border); border-bottom: 1px solid var(--border); height: 26px; }
+.gd-corner2 { position: sticky; left: 0; top: 26px; z-index: 5; background: var(--surface); border-right: 1px solid var(--border); border-bottom: 2px solid var(--border); height: 28px; padding: 0 10px; font-size: 10px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: .5px; display: flex; align-items: center; }
+
+.gd-month { position: sticky; top: 0; z-index: 3; height: 26px; background: var(--surface); border-right: 1px solid var(--border); border-bottom: 1px solid var(--border); padding: 0 8px; font-size: 11px; font-weight: 600; color: var(--text-muted); display: flex; align-items: center; white-space: nowrap; overflow: hidden; }
+.gd-day   { position: sticky; top: 26px; z-index: 2; height: 28px; background: var(--surface); border-right: 1px solid var(--border); border-bottom: 2px solid var(--border); font-size: 10px; color: var(--text-muted); display: flex; align-items: center; justify-content: center; }
+.gd-day.gd-today-hd { background: rgba(79,142,247,.14); color: var(--accent); font-weight: 700; }
+.gd-day.gd-wknd     { background: rgba(255,255,255,.018); color: rgba(139,146,168,.5); }
+.gd-day.gd-mon      { border-left: 1px dashed var(--border); }
+
+.gd-group-row { grid-column: 1 / -1; display: flex; align-items: center; gap: 7px; padding: 5px 10px; background: var(--surface2); border-bottom: 1px solid var(--border); font-size: 11px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: .5px; }
+.gd-group-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+
+.gd-task-label { position: sticky; left: 0; z-index: 2; background: var(--bg); border-right: 1px solid var(--border); border-bottom: 1px solid var(--border); padding: 6px 8px; display: flex; align-items: center; gap: 7px; cursor: pointer; min-height: 36px; transition: background .12s; }
+.gd-task-label:hover { background: var(--surface); }
+.gd-task-label.gd-task-done .gd-task-name { text-decoration: line-through; opacity: .4; }
+.gd-task-name { font-size: 12px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.gd-drag-handle { font-size: 12px; color: var(--border); cursor: ns-resize; flex-shrink: 0; opacity: 0; transition: opacity .12s; line-height: 1; letter-spacing: -1px; }
+.gd-task-label:hover .gd-drag-handle { opacity: 1; }
+.gd-task-label.gd-drop-above { border-top: 2px solid var(--accent); }
+.gd-task-label.gd-drop-below { border-bottom: 2px solid var(--accent); }
+.gd-status-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
+.gd-status-todo       { background: var(--todo-c); }
+.gd-status-inprogress { background: var(--prog-c); }
+.gd-status-overdue    { background: var(--high); }
+.gd-status-done       { background: var(--done-c); }
+
+.gd-connector { align-self: center; height: 1px; border-bottom: 1px dashed var(--border); opacity: .45; }
+
+.gd-bar { align-self: stretch; margin: 4px 2px; border-radius: 5px; cursor: grab; display: flex; align-items: center; padding: 4px 20px; height: auto; min-height: 24px; font-size: 11px; font-weight: 500; overflow: visible; transition: filter .12s; position: relative; }
+.gd-bar:hover { filter: brightness(1.2); }
+.gd-bar.is-dragging { cursor: grabbing; opacity: .75; z-index: 10; transition: none; }
+.gd-bar:hover::after { content: attr(data-title); position: absolute; bottom: calc(100% + 6px); left: 50%; transform: translateX(-50%); background: #1e2233; border: 1px solid var(--border); color: var(--text); font-size: 11px; padding: 4px 8px; border-radius: 5px; white-space: nowrap; pointer-events: none; z-index: 20; max-width: 280px; overflow: hidden; text-overflow: ellipsis; }
+.gd-bar-text { white-space: normal; word-break: break-word; flex: 1; line-height: 1.4; }
+.gd-bar-handle { position: absolute; top: 0; bottom: 0; width: 8px; cursor: ew-resize; display: flex; align-items: center; justify-content: center; z-index: 2; }
+.gd-bar-handle::after { content: ''; width: 2px; height: 10px; background: rgba(255,255,255,.35); border-radius: 1px; }
+.gd-bar-handle.lh { left: 0; border-radius: 5px 0 0 5px; }
+.gd-bar-handle.rh { right: 0; border-radius: 0 5px 5px 0; }
+.gd-bar-handle:hover::after { background: rgba(255,255,255,.8); }
+.gd-bar.gd-drop-above { box-shadow: 0 -2px 0 var(--accent); }
+.gd-bar.gd-drop-below { box-shadow: 0  2px 0 var(--accent); }
+.gd-bar-todo       { background: rgba(139,146,168,.28); color: var(--text-muted); }
+.gd-bar-inprogress { background: rgba(79,142,247,.35);  color: #93c5fd; }
+.gd-bar-overdue    { background: rgba(239,68,68,.35);   color: #fca5a5; }
+.gd-bar-done       { background: rgba(34,197,94,.25);   color: #86efac; opacity: .7; }
+
+.gd-today-line { position: absolute; top: 54px; bottom: 0; width: 2px; background: var(--accent); opacity: .5; pointer-events: none; z-index: 1; }
+
+::-webkit-scrollbar { width: 5px; height: 5px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+</style>
+</head>
+<body>
+
+<!-- Sidebar -->
+<div class="sidebar">
+  <div class="sb-header">
+    <div class="sb-title">Deliverables</div>
+    <div class="sb-sub">Initiative tracker</div>
+  </div>
+  <div class="sb-section">Initiatives</div>
+  <div class="init-list" id="initList"></div>
+  <button class="add-init-btn" onclick="openInitModal()">＋ New initiative</button>
+</div>
+
+<!-- Main -->
+<div class="main">
+  <div class="topbar">
+    <div class="topbar-l">
+      <div class="page-title" id="pageTitle">All Tasks</div>
+      <div class="task-badge" id="taskBadge">0 tasks</div>
+    </div>
+    <div class="topbar-r">
+      <div class="view-toggle">
+        <button class="view-btn active" id="btnList" onclick="setView('list')">List</button>
+        <button class="view-btn" id="btnBoard" onclick="setView('board')">Board</button>
+        <button class="view-btn" id="btnGantt" onclick="setView('gantt')">Gantt</button>
+      </div>
+      <div class="view-toggle" id="groupByToggle" style="display:none">
+        <button class="view-btn" id="gbStage" onclick="setGroupBy('stage')">Stage</button>
+        <button class="view-btn" id="gbPriority" onclick="setGroupBy('priority')">Priority</button>
+        <button class="view-btn active" id="gbDates" onclick="setGroupBy('dates')">Dates</button>
+      </div>
+      <button class="btn-sec" onclick="exportCSV()" title="Export to CSV">↓ CSV</button>
+      <div class="sync-wrap">
+        <button id="syncBtn" class="btn-sec" onclick="syncToGitHub()">↑ Sync</button>
+        <div class="sync-tip">
+          <div class="sync-tip-label">GitHub PAT (click to copy)</div>
+          <div class="sync-tip-token" onclick="navigator.clipboard.writeText(PAT_DEFAULT).then(()=>{this.textContent='Copied!';setTimeout(()=>this.textContent=PAT_DEFAULT,1500)})"
+          ></div>
+        </div>
+      </div>
+      <button class="btn-primary" onclick="openTaskModal()">＋ Add task</button>
+    </div>
+  </div>
+  <div class="filter-bar" id="filterBar">
+    <button class="f-btn active" data-sf="all" onclick="setSF('all')">All</button>
+    <button class="f-btn" data-sf="todo" onclick="setSF('todo')">To Do</button>
+    <button class="f-btn" data-sf="inprogress" onclick="setSF('inprogress')">In Progress</button>
+    <button class="f-btn" data-sf="overdue" onclick="setSF('overdue')">Overdue</button>
+    <button class="f-btn" data-sf="done" onclick="setSF('done')">Done</button>
+    <div class="f-sep"></div>
+    <button class="f-btn active" data-pf="all" onclick="setPF('all')">All Priorities</button>
+    <button class="f-btn" data-pf="high" onclick="setPF('high')">High</button>
+    <button class="f-btn" data-pf="medium" onclick="setPF('medium')">Medium</button>
+    <button class="f-btn" data-pf="low" onclick="setPF('low')">Low</button>
+    <div class="f-sep"></div>
+    <button class="f-btn active" id="recurringToggle" onclick="toggleRecurring()">↻ Recurring</button>
+    <div class="f-sep"></div>
+    <button class="f-btn active" data-df="all" onclick="setDF('all')">All Dates</button>
+    <button class="f-btn" data-df="thisweek" onclick="setDF('thisweek')">This Week</button>
+    <button class="f-btn" data-df="nextweek" onclick="setDF('nextweek')">Next Week</button>
+    <button class="f-btn" data-df="later" onclick="setDF('later')">In 2+ Weeks</button>
+    <button class="f-btn" data-df="overdue" onclick="setDF('overdue')">Overdue</button>
+  </div>
+  <div class="content" id="content"></div>
+</div>
+
+<!-- Task modal -->
+<div class="overlay" id="taskOverlay" onclick="closeTaskModal()">
+  <div class="modal" onclick="event.stopPropagation()">
+    <div class="modal-title" id="taskModalTitle">New Task</div>
+    <div class="fg">
+      <label class="fl">Title *</label>
+      <input class="fi" id="fTitle" placeholder="What needs to be done?" />
+    </div>
+    <div class="fg">
+      <label class="fl">Initiative</label>
+      <select class="fs" id="fInit"></select>
+    </div>
+    <div class="fr">
+      <div class="fg">
+        <label class="fl">Start Date</label>
+        <input type="date" class="fi" id="fStart" />
+      </div>
+      <div class="fg">
+        <label class="fl">Due Date</label>
+        <input type="date" class="fi" id="fDue" />
+      </div>
+    </div>
+    <div class="fg">
+      <label class="fl">Priority</label>
+      <select class="fs" id="fPriority">
+        <option value="high">High</option>
+        <option value="medium" selected>Medium</option>
+        <option value="low">Low</option>
+      </select>
+    </div>
+    <div class="fg">
+      <label class="fl">Notes</label>
+      <textarea class="fta" id="fNotes" placeholder="Additional context..."></textarea>
+    </div>
+    <div class="fg">
+      <label class="fl">Repeat</label>
+      <select class="fs" id="fRecurring">
+        <option value="">No repeat</option>
+        <option value="weekly">Every week</option>
+        <option value="monthly">Every month</option>
+      </select>
+    </div>
+    <div class="done-row fg">
+      <label class="done-toggle">
+        <input type="checkbox" id="fDone" />
+        <span class="done-toggle-label">Mark as done</span>
+      </label>
+      <span class="status-preview" id="statusPreview"></span>
+    </div>
+    <div class="modal-actions">
+      <button class="btn-del" id="taskDelBtn" onclick="deleteEditingTask()" style="display:none">Delete task</button>
+      <button class="btn-sec" onclick="closeTaskModal()">Cancel</button>
+      <button class="btn-primary" onclick="saveTask()">Save task</button>
+    </div>
+  </div>
+</div>
+
+<!-- Initiative modal -->
+<div class="overlay" id="initOverlay" onclick="closeInitModal()">
+  <div class="modal" onclick="event.stopPropagation()">
+    <div class="modal-title" id="initModalTitle">New Initiative</div>
+    <div class="fg">
+      <label class="fl">Name *</label>
+      <input class="fi" id="fInitName" placeholder="Initiative name..." />
+    </div>
+    <div class="fg">
+      <label class="fl">Color</label>
+      <div class="color-opts" id="colorOpts"></div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn-del" id="initDelBtn" onclick="deleteEditingInit()" style="display:none">Delete initiative</button>
+      <button class="btn-sec" onclick="closeInitModal()">Cancel</button>
+      <button class="btn-primary" onclick="saveInit()">Save</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const PALETTE = ['#4f8ef7','#a78bfa','#f472b6','#fb923c','#34d399','#fbbf24','#f87171','#2dd4bf','#818cf8','#60a5fa'];
+
+const S = {
+  initiatives: [],
+  tasks: [],
+  view: 'list',
+  selInit: 'all',
+  sf: 'all',
+  pf: 'all',
+  df: 'all',
+  groupBy: 'dates',
+  hidden: new Set(),
+  ganttOffset: 0,
+  showRecurring: true,
+  editTask: null,
+  editOccDate: null,
+  editInit: null,
+  selColor: PALETTE[0],
+};
+
+const SEED_DATA = {"initiatives":[{"id":"mq8604g11o2y77z11w8","name":"1 - New FW","color":"#4f8ef7"},{"id":"mq8616b9dsjh0qujw4k","name":"2 - Triage Automation","color":"#a78bfa"},{"id":"mq861bpt0b76vx2etfyl","name":"3 - New LOBs","color":"#f472b6"},{"id":"mq9mhl2ei861f4nf8u","name":"4 - Bcom 3PI Mapping","color":"#fbbf24"},{"id":"mq868scetuwckgy1fk","name":"5 - Adhoc","color":"#fb923c"},{"id":"mq87i7ake3fcqv70ool","name":"6 - Admin","color":"#34d399"},{"id":"mqb2nnucc1p6ygjkif9","name":"7 - Project Resto","color":"#f87171"},{"id":"mqb2o8sqoxrmhat2hge","name":"8 - Project Startup","color":"#2dd4bf"}],"tasks":[{"id":"mq86akxgmop6blx9jkg","title":"Apply the Blanket Chains-level Restriction Globally","initiativeId":"mq8604g11o2y77z11w8","priority":"high","dueDate":"2026-06-12","notes":"Waiting for David's sign off","done":true,"startDate":"2026-06-08","recurring":null},{"id":"mq8a4c6t868ver8gsu6","title":"Taxes","initiativeId":"mq87i7ake3fcqv70ool","priority":"high","dueDate":"2026-06-26","notes":null,"done":false,"startDate":"2026-06-15","recurring":null},{"id":"mq8a532pmpso4pck8ue","title":"Creche GVA","initiativeId":"mq87i7ake3fcqv70ool","priority":"low","dueDate":"2026-07-31","notes":"The sooner the better","done":false,"startDate":"2026-07-01"},{"id":"mq8a7zt5ih6p55n6jlj","title":"OD Restriction change","initiativeId":"mq8604g11o2y77z11w8","priority":"medium","dueDate":"2026-06-12","notes":"Phase 1: Allow SA rates to flow\nPhase 2: Incorporate OD status on Blanket + Grid and turn off OD rule","done":true,"startDate":"2026-06-08","recurring":null},{"id":"mqezyjksypbdkv87ln","title":"Analytics: Adhoc pull to answer MI and IHG questions","initiativeId":"mq8604g11o2y77z11w8","startDate":"2026-06-15","dueDate":"2026-06-23","priority":"medium","notes":null,"done":false,"recurring":null},{"id":"mq96q6v5oe2bx9fuo6n","title":"Analytics: YoY growth comparison between in-scope vs out-of-scope partners","initiativeId":"mq8604g11o2y77z11w8","priority":"low","dueDate":"2026-06-23","notes":null,"done":false,"startDate":"2026-06-15","recurring":null},{"id":"mqf3psucqvktmwqlhvo","title":"Analytics: Add margin to the pre-post dash","initiativeId":"mq8604g11o2y77z11w8","startDate":"2026-06-15","dueDate":"2026-06-23","priority":"medium","notes":null,"done":false,"recurring":null},{"id":"mq8aog56prfid7lexb","title":"Within the Grid considering Purchase transactions only","initiativeId":"mq8604g11o2y77z11w8","priority":"medium","dueDate":"2026-06-23","notes":"Requires alignment with analytics","done":false,"startDate":"2026-06-15"},{"id":"mq8amnivwhiyy0ykqwq","title":"Adjust the Grid logic to account if cases/GBV increase because GBV decrease","initiativeId":"mq8604g11o2y77z11w8","priority":"high","dueDate":"2026-06-23","notes":"Needs alignment with Analytics","done":false,"startDate":"2026-06-15","recurring":null},{"id":"mqashlvmlvyyis51atd","title":"Analytics: Restrictions impact from a Supply perspective","initiativeId":"mq8604g11o2y77z11w8","startDate":"2026-06-24","dueDate":"2026-07-07","priority":"medium","notes":null,"done":false,"recurring":null},{"id":"mqez0kwbprsj5pemeof","title":"Analytics: Cases Volumes & Ratio Tab","initiativeId":"mq8604g11o2y77z11w8","startDate":"2026-06-24","dueDate":"2026-07-07","priority":"medium","notes":null,"done":false,"recurring":null},{"id":"mqaq8dycu0mr2r8a7a","title":"Review how to offer more protection to larger chains","initiativeId":"mq8604g11o2y77z11w8","startDate":"2026-06-24","dueDate":"2026-07-07","priority":"medium","notes":"Come up with a proposal to offer more protection to larger chains that will never reach the 25% of the above rule. This can be either by offering more weekly test bookings or by expanding the the logic of the blanket to other chain types (each chain type would have a specific threshold of % of portfolio impacted to trigger the protection).","done":false,"recurring":null},{"id":"mq96hwyujcnqfpjff3g","title":"Change the Velocity of partner pattern changes within the Blanket","initiativeId":"mq8604g11o2y77z11w8","priority":"medium","dueDate":"2026-07-07","notes":null,"done":false,"startDate":"2026-06-24","recurring":null},{"id":"mq96gqlv5tocvdw222n","title":"Change the supply prio score to focus more where vios are happening","initiativeId":"mq8604g11o2y77z11w8","priority":"medium","dueDate":"2026-07-21","notes":"Score = NBV received from CIDs in scope of Blanket * cases per NBV of demand they receive * number of cases raised L12M * Nbr of 3PI BML Losses * Boost Factors (OD, Sensitive Chains, Chains raising cases, Key Markets)","done":false,"startDate":"2026-07-08","recurring":null},{"id":"mq96jqfwhfgb2xuq66i","title":"Decide on refreshing the blanket more frequently","initiativeId":"mq8604g11o2y77z11w8","priority":"low","dueDate":"2026-07-21","notes":null,"done":false,"startDate":"2026-07-08"},{"id":"mqaqozq9xh4dhspzeg8","title":"Review merging the OD restriction into the Blanket","initiativeId":"mq8604g11o2y77z11w8","startDate":"2026-07-22","dueDate":"2026-08-04","priority":"medium","notes":"Review merging the OD restriction into the Blanket, i.e., expand the new FW blanket to also protect properties with active OD rates (on top of its current supply scope)","done":false,"recurring":null},{"id":"mq96kyl3gqdedrjs9o","title":"Follow up on TAAP Leakage","initiativeId":"mq868scetuwckgy1fk","priority":"medium","dueDate":"2026-07-07","notes":null,"done":false,"startDate":"2026-07-01"},{"id":"mq96mpq12ih7u6kqwir","title":"BML Mapping Handover","initiativeId":"mq9mhl2ei861f4nf8u","priority":"medium","dueDate":"2026-07-07","notes":null,"done":false,"startDate":"2026-07-01","recurring":null},{"id":"mq96og333bqsbz7qyg2","title":"Adjust the code given the many-to-many BML mapping","initiativeId":"mq8604g11o2y77z11w8","priority":"medium","dueDate":"2026-08-04","notes":null,"done":false,"startDate":"2026-07-22"},{"id":"mq96r3apdzljgsecizs","title":"Reviewin how to share the list of properties impacted by the FWs with AMs","initiativeId":"mq8604g11o2y77z11w8","priority":"low","dueDate":"2026-08-18","notes":null,"done":false,"startDate":"2026-08-05"},{"id":"mq99mlnt0q7v7onhj2p","title":"Review stopping SAR FW","initiativeId":"mq8604g11o2y77z11w8","priority":"low","dueDate":"2026-08-18","notes":null,"done":false,"startDate":"2026-08-05","recurring":null},{"id":"mq96rwhhyo4m6ao3tz9","title":"The reco from YY on code optimisation (regarding the join of incidents with NBV)","initiativeId":"mq8604g11o2y77z11w8","priority":"low","dueDate":"2026-09-01","notes":null,"done":false,"startDate":"2026-08-19","recurring":null},{"id":"mq9odi354slfkei38ah","title":"Refresh FW Rules","initiativeId":"mq8604g11o2y77z11w8","startDate":"2026-06-08","dueDate":"2026-06-10","priority":"high","notes":null,"done":false,"recurring":"weekly","doneOccurrences":["2026-06-08"]},{"id":"mqb0dlczecs9rin9ftj","title":"Store List of Global Properties with contact info","initiativeId":"mqb2o8sqoxrmhat2hge","startDate":"2026-06-15","dueDate":"2026-06-19","priority":"medium","notes":"Include data like NBV, Cases raised, etc","done":false,"recurring":null},{"id":"mqb0edkvb6j7d85ul2","title":"Store list of B2B partners with contact info","initiativeId":"mqb2o8sqoxrmhat2hge","startDate":"2026-06-22","dueDate":"2026-06-26","priority":"medium","notes":"Include data like NBV, Cases raised, etc","done":false,"recurring":null},{"id":"mqb2cjykp5ppvkc0y1","title":"Get clarity on outstanding questions","initiativeId":"mq8616b9dsjh0qujw4k","startDate":"2026-06-15","dueDate":"2026-06-19","priority":"medium","notes":"The key outstanding questions I have are:\n\nWhat are the actual dependencies / blockers for your team to kick off?\nWho's going to work on those dependencies and when will they be completed?","done":false,"recurring":null},{"id":"mqb2t7f9spftiqrb6r","title":"Close contract with Paula","initiativeId":"mqb2nnucc1p6ygjkif9","startDate":"2026-06-15","dueDate":"2026-06-19","priority":"medium","notes":null,"done":false,"recurring":null},{"id":"mqb2tvzvgrn935rpsk","title":"Discuss Contract with Augusto","initiativeId":"mqb2nnucc1p6ygjkif9","startDate":"2026-06-16","dueDate":"2026-06-18","priority":"medium","notes":null,"done":false,"recurring":null},{"id":"mqb2wb9n8dftru0hdoc","title":"Get offer from good collective","initiativeId":"mqb2nnucc1p6ygjkif9","startDate":"2026-06-15","dueDate":"2026-06-19","priority":"medium","notes":"With Tiago","done":false,"recurring":null},{"id":"mqb2vh5nfwx23ss2xpf","title":"Sign contract with Augusto","initiativeId":"mqb2nnucc1p6ygjkif9","startDate":"2026-06-22","dueDate":"2026-06-30","priority":"medium","notes":null,"done":false,"recurring":null},{"id":"mqb2xgg18lxe57f0io3","title":"Sign Good Collective contract","initiativeId":"mqb2nnucc1p6ygjkif9","startDate":"2026-07-01","dueDate":"2026-07-07","priority":"medium","notes":null,"done":false,"recurring":null},{"id":"mqb34ozw0cnxudplhdz","title":"Sign contract with Sebas & Rita","initiativeId":"mqb2nnucc1p6ygjkif9","startDate":"2026-07-01","dueDate":"2026-07-07","priority":"medium","notes":null,"done":false,"recurring":null},{"id":"mqb384yavups6yf5gjg","title":"Assess market gaps and value pro","initiativeId":"mqb2o8sqoxrmhat2hge","startDate":"2026-06-29","dueDate":"2026-07-10","priority":"medium","notes":null,"done":false,"recurring":null},{"id":"mqf5khqwcyuqhx0pnc","title":"Pricing Guardrails","initiativeId":"mq868scetuwckgy1fk","startDate":"2026-06-15","dueDate":"2026-06-23","priority":"high","notes":"Reply to Julia's thread and share the initial list with Jamie / Aday with list of known offenders + CN / HK POSa + Turkey POSa (TBD).\n\nAs a phase 2: Centralise the definitions of Risk and make sure we refresh them frequently","done":false,"recurring":null},{"id":"mqgg59f9nso1t080ofj","title":"Log work from CH","initiativeId":"mq87i7ake3fcqv70ool","startDate":"2026-06-25","dueDate":"2026-07-02","priority":"medium","notes":null,"done":false,"recurring":"monthly"}]};
+
+const REPO_API = 'https://api.github.com/repos/gcarrilho97/deliverables-tracker';
+const PAT_KEY = 'dlv-tracker-pat';
+const PAT_DEFAULT = '';
+
+function migrateTask(t) {
+  if (t.status !== undefined && t.done === undefined) { t.done = t.status === 'done'; delete t.status; }
+  return t;
+}
+
+function applyData(d) {
+  S.initiatives = (d.initiatives && d.initiatives.length) ? d.initiatives : SEED_DATA.initiatives;
+  S.tasks = ((d.tasks && d.tasks.length) ? d.tasks : SEED_DATA.tasks).map(migrateTask);
+}
+
+function load() {
+  try {
+    const stored = localStorage.getItem('dlv-tracker-v1');
+    applyData(JSON.parse(stored || '{}'));
+  } catch(e) { applyData({}); }
+}
+
+async function loadRemote() {
+  try {
+    const r = await fetch('./data.json?t=' + Date.now());
+    if (!r.ok) return;
+    const d = await r.json();
+    applyData(d);
+    persist();
+    render();
+  } catch(e) {}
+}
+
+async function syncToGitHub() {
+  const btn = document.getElementById('syncBtn');
+  let pat = localStorage.getItem(PAT_KEY) || PAT_DEFAULT;
+  if (!pat) {
+    pat = prompt('Enter your GitHub Personal Access Token.\n\nNeeds repo scope. Will be stored in this browser only.');
+    if (!pat) return;
+  }
+  localStorage.setItem(PAT_KEY, pat);
+  btn.textContent = '↑ Syncing…';
+  btn.disabled = true;
+  try {
+    const headers = { Authorization: 'token ' + pat, Accept: 'application/vnd.github.v3+json', 'Content-Type': 'application/json' };
+    // Get current SHA of data.json
+    const meta = await fetch(REPO_API + '/contents/data.json', { headers });
+    const metaJson = await meta.json();
+    if (!meta.ok && meta.status !== 404) throw new Error(metaJson.message || 'API error');
+    const sha = metaJson.sha;
+    const state = { initiatives: S.initiatives, tasks: S.tasks };
+    const content = btoa(unescape(encodeURIComponent(JSON.stringify(state, null, 2))));
+    const body = { message: 'Sync deliverables state', content };
+    if (sha) body.sha = sha;
+    const res = await fetch(REPO_API + '/contents/data.json', { method: 'PUT', headers, body: JSON.stringify(body) });
+    if (!res.ok) {
+      const err = await res.json();
+      if (res.status === 401) { localStorage.removeItem(PAT_KEY); throw new Error('Invalid token — removed. Try again.'); }
+      throw new Error(err.message || 'Sync failed');
+    }
+    btn.textContent = '✓ Synced';
+    setTimeout(() => { btn.textContent = '↑ Sync'; btn.disabled = false; }, 2000);
+  } catch(e) {
+    alert('Sync error: ' + e.message);
+    btn.textContent = '↑ Sync';
+    btn.disabled = false;
+  }
+}
+
+// ── Recurring helpers ──
+function toDateStr(d) {
+  return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
+}
+function daysInMonth(y, m) { return new Date(y, m + 1, 0).getDate(); }
+function addMonths(dateStr, n) {
+  const d = new Date(dateStr+'T00:00:00');
+  const anchorDay = d.getDate();
+  let y = d.getFullYear(), m = d.getMonth() + n;
+  while (m > 11) { m -= 12; y++; }
+  while (m < 0)  { m += 12; y--; }
+  return toDateStr(new Date(y, m, Math.min(anchorDay, daysInMonth(y, m))));
+}
+function occDuration(t) {
+  if (t.startDate && t.dueDate)
+    return Math.max(1, Math.round((new Date(t.dueDate+'T00:00:00') - new Date(t.startDate+'T00:00:00')) / 86400000) + 1);
+  return 1;
+}
+function currentOcc(t) {
+  if (!t.startDate || !t.recurring) return null;
+  const now = new Date(); now.setHours(0,0,0,0);
+  const anchor = new Date(t.startDate+'T00:00:00');
+  if (now < anchor) return null;
+  if (t.recurring === 'weekly') {
+    const weekNum = Math.floor((now - anchor) / 86400000 / 7);
+    return toDateStr(new Date(anchor.getTime() + weekNum * 7 * 86400000));
+  }
+  if (t.recurring === 'monthly') {
+    // Walk backward from current month to find the most recent occurrence <= today
+    let y = now.getFullYear(), m = now.getMonth();
+    for (let i = 0; i < 24; i++) {
+      const occ = new Date(y, m, Math.min(anchor.getDate(), daysInMonth(y, m)));
+      if (occ <= now && occ >= anchor) return toDateStr(occ);
+      if (occ < anchor) return null;
+      if (--m < 0) { m = 11; y--; }
+    }
+  }
+  return null;
+}
+function isOccDone(t, occStr) {
+  return (t.doneOccurrences || []).includes(occStr);
+}
+
+// Returns the occurrence date relevant to the current active filters
+function filterOccDate(t) {
+  if (!t.recurring) return null;
+  if (S.df === 'all') return currentOcc(t);
+  const now = new Date(); now.setHours(0,0,0,0);
+  const day = 86400000;
+  const dow = (now.getDay() + 6) % 7;
+  const weekStart   = new Date(now - dow * day);
+  const weekEnd     = new Date(weekStart.getTime() + 7 * day);
+  const nextWeekEnd = new Date(weekStart.getTime() + 14 * day);
+  const farFuture   = new Date(nextWeekEnd.getTime() + 365 * day);
+  if (S.df === 'thisweek') return firstOccInRange(t, weekStart, weekEnd);
+  if (S.df === 'nextweek') return firstOccInRange(t, weekEnd, nextWeekEnd);
+  if (S.df === 'later')    return firstOccInRange(t, nextWeekEnd, farFuture);
+  return currentOcc(t); // overdue, all
+}
+
+// Compute status for a specific occurrence date
+function computeStatusForOcc(t, occStr) {
+  if (!occStr || !t.recurring) return computeStatus(t);
+  if (isOccDone(t, occStr)) return 'done';
+  const now = new Date(); now.setHours(0,0,0,0);
+  const occStart = new Date(occStr + 'T00:00:00');
+  const occEnd   = new Date(occStart.getTime() + (occDuration(t) - 1) * 86400000);
+  if (occEnd < now)   return 'overdue';
+  if (occStart <= now) return 'inprogress';
+  return 'todo';
+}
+
+function computeStatus(t) {
+  const now = new Date(); now.setHours(0,0,0,0);
+  if (t.recurring) {
+    const occ = currentOcc(t);
+    if (!occ) return 'todo';
+    if (isOccDone(t, occ)) return 'done';
+    const occStart = new Date(occ+'T00:00:00');
+    const occEnd   = new Date(occStart.getTime() + (occDuration(t)-1)*86400000);
+    if (occEnd < now) return 'overdue';
+    if (occStart <= now) return 'inprogress';
+    return 'todo';
+  }
+  if (t.done) return 'done';
+  const start = t.startDate ? new Date(t.startDate+'T00:00:00') : null;
+  const due   = t.dueDate   ? new Date(t.dueDate  +'T00:00:00') : null;
+  if (due && due < now) return 'overdue';
+  if (start && start <= now && (!due || now <= due)) return 'inprogress';
+  return 'todo';
+}
+
+function persist() {
+  localStorage.setItem('dlv-tracker-v1', JSON.stringify({ initiatives: S.initiatives, tasks: S.tasks }));
+}
+
+function uid() { return Date.now().toString(36) + Math.random().toString(36).slice(2); }
+
+function getInit(id) { return S.initiatives.find(i => i.id === id); }
+
+function filtered() {
+  let t = S.tasks;
+  if (!S.showRecurring) t = t.filter(x => !x.recurring);
+  if (S.hidden.size) t = t.filter(x => !S.hidden.has(x.initiativeId));
+  if (S.selInit !== 'all') t = t.filter(x => x.initiativeId === S.selInit);
+  if (S.sf !== 'all') t = t.filter(x => {
+    if (x.recurring) {
+      if (S.df !== 'all') {
+        // Both filters active: the date-range occurrence must match the stage filter exactly
+        const occ = filterOccDate(x);
+        return !!occ && computeStatusForOcc(x, occ) === S.sf;
+      }
+      // Only stage filter active — use current occurrence; also allow next occ for 'todo'
+      const st = computeStatus(x);
+      if (st === S.sf) return true;
+      if (S.sf === 'todo') return nextOccFrom(x, currentOcc(x)) !== null;
+      return false;
+    }
+    return computeStatus(x) === S.sf;
+  });
+  if (S.pf !== 'all') t = t.filter(x => x.priority === S.pf);
+  if (S.df !== 'all') {
+    const now = new Date(); now.setHours(0,0,0,0);
+    const day = 86400000;
+    const dow = (now.getDay() + 6) % 7;
+    const weekStart = new Date(now - dow * day);
+    const weekEnd   = new Date(weekStart.getTime() + 7 * day);
+    const nextWeekEnd = new Date(weekStart.getTime() + 14 * day);
+    const farFuture = new Date(nextWeekEnd.getTime() + 365 * day);
+    t = t.filter(x => {
+      if (x.recurring) {
+        if (S.df === 'overdue')  return computeStatus(x) === 'overdue';
+        if (S.df === 'thisweek') return hasOccInRange(x, weekStart, weekEnd);
+        if (S.df === 'nextweek') return hasOccInRange(x, weekEnd, nextWeekEnd);
+        if (S.df === 'later')    return hasOccInRange(x, nextWeekEnd, farFuture);
+        return false;
+      }
+      if (!x.dueDate) return false;
+      const d = new Date(x.dueDate + 'T00:00:00');
+      if (S.df === 'overdue')  return d < now;
+      if (S.df === 'thisweek') return d >= now && d < weekEnd;
+      if (S.df === 'nextweek') return d >= weekEnd && d < nextWeekEnd;
+      if (S.df === 'later')    return d >= nextWeekEnd;
+    });
+  }
+  return t;
+}
+
+function fmtDate(ds) {
+  if (!ds) return null;
+  const d = new Date(ds + 'T00:00:00');
+  const now = new Date(); now.setHours(0,0,0,0);
+  const diff = (d - now) / 86400000;
+  if (diff < 0) return { text: 'Overdue', cls: 'overdue' };
+  if (diff === 0) return { text: 'Today', cls: 'soon' };
+  if (diff === 1) return { text: 'Tomorrow', cls: 'soon' };
+  if (diff <= 7) return { text: d.toLocaleDateString('en-US',{month:'short',day:'numeric'}), cls: 'soon' };
+  return { text: d.toLocaleDateString('en-US',{month:'short',day:'numeric'}), cls: '' };
+}
+
+function esc(s) {
+  if (!s) return '';
+  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+// ── Render ──
+function render() {
+  renderSidebar();
+  renderContent();
+  syncFilters();
+}
+
+function renderSidebar() {
+  const all = `
+    <div class="init-item ${S.selInit==='all'?'active':''}" onclick="selInit('all')">
+      <div class="init-item-inner">
+        <div class="init-dot" style="background:var(--text-muted)"></div>
+        <div class="init-name">All tasks</div>
+      </div>
+      <div class="init-cnt">${S.tasks.length}</div>
+    </div>`;
+  const items = S.initiatives.map(i => {
+    const cnt = S.tasks.filter(t => t.initiativeId === i.id).length;
+    const isHidden = S.hidden.has(i.id);
+    return `
+      <div class="init-item ${S.selInit===i.id?'active':''} ${isHidden?'init-hidden':''}"
+           draggable="true"
+           ondragstart="initDragStart('${i.id}')"
+           ondragover="initDragOver(event,'${i.id}')"
+           ondragleave="initDragLeave(event)"
+           ondrop="initDrop(event,'${i.id}')"
+           onclick="selInit('${i.id}')">
+        <div class="init-item-inner">
+          <div class="init-dot" style="background:${isHidden?'var(--border)':i.color}"></div>
+          <div class="init-name" title="${esc(i.name)}">${esc(i.name)}</div>
+        </div>
+        <button class="init-edit-btn" onclick="event.stopPropagation();openInitModal('${i.id}')" title="Edit">✏</button>
+        <button class="init-vis-btn ${isHidden?'is-hidden':''}" onclick="event.stopPropagation();toggleHidden('${i.id}')" title="${isHidden?'Show':'Hide'}">${isHidden?'◉':'◎'}</button>
+        <div class="init-cnt">${cnt}</div>
+      </div>`;
+  }).join('');
+  document.getElementById('initList').innerHTML = all + items;
+}
+
+function renderContent() {
+  const tasks = filtered();
+  const init = S.selInit === 'all' ? null : getInit(S.selInit);
+  document.getElementById('pageTitle').textContent = init ? init.name : 'All Tasks';
+  document.getElementById('taskBadge').textContent = `${tasks.length} task${tasks.length!==1?'s':''}`;
+  if (S.view === 'list') renderList(tasks);
+  else if (S.view === 'board') renderBoard(tasks);
+  else renderGantt(tasks);
+}
+
+function renderList(tasks) {
+  const ct = document.getElementById('content');
+  if (!tasks.length) {
+    ct.innerHTML = `<div class="empty"><div class="empty-icon">📋</div><div class="empty-txt">No tasks here yet.</div><button class="btn-primary" onclick="openTaskModal()">＋ Add task</button></div>`;
+    return;
+  }
+  const groups = {};
+  if (S.selInit === 'all') {
+    for (const i of S.initiatives) {
+      const t = tasks.filter(x => x.initiativeId === i.id);
+      if (t.length) groups[i.id] = { i, tasks: t };
+    }
+    const none = tasks.filter(x => !S.initiatives.find(i => i.id === x.initiativeId));
+    if (none.length) groups['__'] = { i: { name: 'No Initiative', color: '#8b92a8' }, tasks: none };
+  } else {
+    const i = getInit(S.selInit);
+    if (i) groups[i.id] = { i, tasks };
+  }
+  ct.innerHTML = Object.values(groups).map(g => `
+    <div class="init-group">
+      <div class="group-header">
+        <div class="group-dot" style="background:${g.i.color}"></div>
+        <div class="group-name">${esc(g.i.name)}</div>
+        <div class="group-cnt">${g.tasks.filter(t=>t.done).length}/${g.tasks.length} done</div>
+      </div>
+      <div class="task-list">${g.tasks.map(t => taskRow(t)).join('')}</div>
+    </div>`).join('');
+}
+
+function taskRow(t) {
+  const occ = t.recurring ? (filterOccDate(t) || currentOcc(t) || '') : '';
+  const st  = t.recurring ? computeStatusForOcc(t, occ) : computeStatus(t);
+  const d   = fmtDate(t.dueDate);
+  const SL  = { todo:'To Do', inprogress:'In Progress', overdue:'Overdue', done:'Done' };
+  const PL  = { high:'High', medium:'Medium', low:'Low' };
+  return `
+    <div class="task-row ${st==='done'?'is-done':''}" onclick="openTaskModal('${t.id}','${occ}')">
+      <div class="t-check ${st==='done'?'checked':''}" onclick="event.stopPropagation();toggleDone('${t.id}','${occ}')"></div>
+      <div class="task-title">${esc(t.title)}</div>
+      ${t.recurring ? `<div class="recurring-badge">↻ ${t.recurring==='monthly'?'Monthly':'Weekly'}</div>` : `<div class="s-badge s-${st}">${SL[st]}</div>`}
+      <div class="p-badge p-${t.priority}">${PL[t.priority]}</div>
+      ${d ? `<div class="due ${d.cls}">${d.text}</div>` : '<div></div>'}
+      <div class="task-actions">
+        <button class="icon-btn" onclick="event.stopPropagation();openTaskModal('${t.id}','${occ}')" title="Edit">✏</button>
+        <button class="icon-btn" onclick="event.stopPropagation();quickDelete('${t.id}')" title="Delete">✕</button>
+      </div>
+    </div>`;
+}
+
+function nextOccFrom(t, occStr) {
+  const base = occStr || currentOcc(t);
+  if (!base) return t.startDate || null;
+  if (t.recurring === 'monthly') return addMonths(base, 1);
+  return toDateStr(new Date(new Date(base+'T00:00:00').getTime() + 7*86400000));
+}
+
+function firstOccInRange(t, rangeStart, rangeEnd) {
+  if (!t.recurring || !t.startDate) return null;
+  const anchor = new Date(t.startDate+'T00:00:00');
+  if (t.recurring === 'weekly') {
+    const diffDays = (rangeStart - anchor) / 86400000;
+    const weeksAhead = Math.max(0, Math.ceil(diffDays / 7));
+    const occ = new Date(anchor.getTime() + weeksAhead * 7 * 86400000);
+    return occ < rangeEnd ? toDateStr(occ) : null;
+  }
+  if (t.recurring === 'monthly') {
+    let y = rangeStart.getFullYear(), m = rangeStart.getMonth();
+    for (let i = 0; i < 24; i++) {
+      const occ = new Date(y, m, Math.min(anchor.getDate(), daysInMonth(y, m)));
+      if (occ >= anchor && occ >= rangeStart && occ < rangeEnd) return toDateStr(occ);
+      if (occ >= rangeEnd) return null;
+      if (++m > 11) { m = 0; y++; }
+    }
+  }
+  return null;
+}
+function hasOccInRange(t, rangeStart, rangeEnd) {
+  return firstOccInRange(t, rangeStart, rangeEnd) !== null;
+}
+
+function getBoardCols() {
+  if (S.groupBy === 'stage') {
+    // When a date filter is active, evaluate the occurrence that falls in that date range
+    // Otherwise use the current occurrence
+    const stageOcc = t => {
+      if (!t.recurring) return null;
+      return S.df !== 'all' ? filterOccDate(t) : currentOcc(t);
+    };
+    const stageSt = t => t.recurring
+      ? computeStatusForOcc(t, stageOcc(t))
+      : computeStatus(t);
+
+    return [
+      { key:'done',       label:'Done',        clr:'var(--done-c)',
+        match:      t => (S.sf === 'all' || S.sf === 'done') && stageSt(t) === 'done',
+        getOccDate: t => t.recurring ? stageOcc(t) : null },
+      { key:'overdue',    label:'Overdue',     clr:'var(--high)',
+        match:      t => (S.sf === 'all' || S.sf === 'overdue') && stageSt(t) === 'overdue',
+        getOccDate: t => t.recurring ? stageOcc(t) : null },
+      { key:'inprogress', label:'In Progress', clr:'var(--prog-c)',
+        match:      t => (S.sf === 'all' || S.sf === 'inprogress') && stageSt(t) === 'inprogress',
+        getOccDate: t => t.recurring ? stageOcc(t) : null },
+      { key:'todo',       label:'To Do',       clr:'var(--todo-c)',
+        match: t => {
+          if (!t.recurring) return stageSt(t) === 'todo';
+          if (S.sf !== 'all' && S.sf !== 'todo') return false; // stage filter blocks To Do for recurring
+          const st = stageSt(t);
+          if (st === 'todo') return true;
+          // Next-occurrence card only when no date filter AND sf allows it
+          return S.df === 'all' && (S.sf === 'all' || S.sf === 'todo') && nextOccFrom(t, currentOcc(t)) !== null;
+        },
+        getOccDate: t => {
+          if (!t.recurring) return null;
+          if (S.df !== 'all') return stageOcc(t); // date filter active: use that occurrence
+          const st = stageSt(t);
+          const cur = currentOcc(t);
+          if (st === 'todo') return cur;
+          return nextOccFrom(t, cur);
+        }},
+    ];
+  }
+  if (S.groupBy === 'priority') {
+    const prioCol = (key, label, clr) => ({
+      key, label, clr,
+      match: t => t.priority === key,
+      getOccDate: t => {
+        if (!t.recurring) return null;
+        const occ = filterOccDate(t) || currentOcc(t);
+        // Only shift to next occurrence when sf='todo' AND no date filter is constraining the range
+        if (S.sf === 'todo' && S.df === 'all' && computeStatusForOcc(t, occ) !== 'todo')
+          return nextOccFrom(t, occ);
+        return occ;
+      },
+      getExtraOccDate: t => {
+        // Only show extra "next occurrence" card when NO status or date filter is active
+        if (!t.recurring || S.sf !== 'all' || S.df !== 'all') return null;
+        const st = computeStatusForOcc(t, currentOcc(t));
+        return st !== 'todo' ? nextOccFrom(t, currentOcc(t)) : null;
+      },
+    });
+    return [
+      prioCol('high',   'High',   'var(--high)'),
+      prioCol('medium', 'Medium', 'var(--medium)'),
+      prioCol('low',    'Low',    'var(--low)'),
+    ];
+  }
+  // dates
+  const now = new Date(); now.setHours(0,0,0,0);
+  const day = 86400000;
+  const dow = (now.getDay() + 6) % 7;
+  const weekStart = new Date(now - dow * day);
+  const weekEnd   = new Date(weekStart.getTime() + 7 * day);
+  const nextWeekEnd = new Date(weekStart.getTime() + 14 * day);
+  const farFuture = new Date(nextWeekEnd.getTime() + 365 * 86400000);
+
+  // When a date filter is active, tasks should only appear in the matching column
+  const colAllowed = key => S.df === 'all' || S.df === key;
+
+  // For recurring tasks: check that the occurrence in this column matches the status filter
+  const occMatchesSF = (t, occ) => S.sf === 'all' || (occ ? computeStatusForOcc(t, occ) === S.sf : false);
+
+  return [
+    { key:'overdue',  label:'Overdue',     clr:'var(--high)',
+      match: t => {
+        if (!colAllowed('overdue')) return false;
+        if (t.recurring) { const occ = currentOcc(t); return computeStatus(t)==='overdue' && occMatchesSF(t, occ); }
+        return t.dueDate && new Date(t.dueDate+'T00:00:00') < now;
+      },
+      getOccDate: t => t.recurring ? currentOcc(t) : null },
+    { key:'thisweek', label:'This Week',   clr:'var(--medium)',
+      match: t => {
+        if (!colAllowed('thisweek')) return false;
+        if (t.recurring) { const occ = firstOccInRange(t, weekStart, weekEnd); return !!occ && occMatchesSF(t, occ); }
+        return !t.dueDate ? false : (d => d>=weekStart&&d<weekEnd)(new Date(t.dueDate+'T00:00:00'));
+      },
+      getOccDate: t => t.recurring ? firstOccInRange(t, weekStart, weekEnd) : null },
+    { key:'nextweek', label:'Next Week',   clr:'var(--accent)',
+      match: t => {
+        if (!colAllowed('nextweek')) return false;
+        if (t.recurring) { const occ = firstOccInRange(t, weekEnd, nextWeekEnd); return !!occ && occMatchesSF(t, occ); }
+        return !t.dueDate ? false : (d => d>=weekEnd&&d<nextWeekEnd)(new Date(t.dueDate+'T00:00:00'));
+      },
+      getOccDate: t => t.recurring ? firstOccInRange(t, weekEnd, nextWeekEnd) : null },
+    { key:'later',    label:'In 2+ Weeks', clr:'var(--done-c)',
+      match: t => {
+        if (!colAllowed('later')) return false;
+        if (t.recurring) { const occ = firstOccInRange(t, nextWeekEnd, farFuture); return !!occ && occMatchesSF(t, occ); }
+        return !t.dueDate ? false : new Date(t.dueDate+'T00:00:00') >= nextWeekEnd;
+      },
+      getOccDate: t => t.recurring ? firstOccInRange(t, nextWeekEnd, farFuture) : null },
+    { key:'nodate',   label:'No Date',     clr:'var(--todo-c)',
+      match:      t => colAllowed('nodate') && (t.recurring ? !t.startDate : !t.dueDate),
+      getOccDate: t => null },
+  ];
+}
+
+function renderBoard(tasks) {
+  const cols = getBoardCols();
+  const colCount = cols.length;
+  document.getElementById('content').innerHTML =
+    `<div class="board" style="grid-template-columns:repeat(${colCount},1fr)">${
+      cols.map(c => boardCol(c, tasks.filter(c.match), true)).join('')
+    }</div>`;
+}
+
+function boardCol(c, tasks, showInitPill) {
+  return `
+    <div class="b-col">
+      <div class="b-col-head">
+        <div class="b-col-title"><div class="b-col-dot" style="background:${c.clr}"></div>${c.label}</div>
+        <div class="b-col-cnt">${tasks.length}</div>
+      </div>
+      <div class="b-cards">
+        ${tasks.length===0?'<div style="color:var(--text-muted);font-size:12px;text-align:center;padding:20px 0;opacity:.6">Empty</div>':''}
+        ${tasks.map(t => {
+          const mainOcc  = c.getOccDate      ? c.getOccDate(t)      : null;
+          const extraOcc = c.getExtraOccDate ? c.getExtraOccDate(t) : null;
+          return bCard(t, showInitPill, mainOcc)
+               + (extraOcc ? bCard(t, showInitPill, extraOcc) : '');
+        }).join('')}
+      </div>
+    </div>`;
+}
+
+function bCard(t, showPill = true, occDateOverride = null) {
+  const i = getInit(t.initiativeId);
+  // For recurring tasks, show the due date of this specific occurrence, not the stored first-occurrence date
+  const occStr2 = occDateOverride || (t.recurring ? currentOcc(t) : null);
+  const dueDateToShow = t.recurring && occStr2
+    ? toDateStr(new Date(new Date(occStr2+'T00:00:00').getTime() + (occDuration(t)-1)*86400000))
+    : t.dueDate;
+  const d = fmtDate(dueDateToShow);
+  const PL = { high:'High', medium:'Medium', low:'Low' };
+  const occStr = occDateOverride || (t.recurring ? (currentOcc(t) || '') : '');
+  const isDone = t.recurring
+    ? (occStr ? isOccDone(t, occStr) : false)
+    : computeStatus(t) === 'done';
+  return `
+    <div class="b-card ${isDone?'is-done':''}" onclick="openTaskModal('${t.id}','${occStr}')">
+      <div class="b-card-title">${esc(t.title)}</div>
+      <div class="b-card-meta">
+        ${showPill && i?`<div class="init-pill"><div class="pill-dot" style="background:${i.color}"></div>${esc(i.name)}</div>`:''}
+        ${t.recurring ? `<div class="recurring-badge">↻ ${t.recurring==='monthly'?'Monthly':'Weekly'}</div>` : ''}
+        <div class="p-badge p-${t.priority}">${PL[t.priority]}</div>
+        ${d?`<div class="due ${d.cls}" style="font-size:11px">${d.text}</div>`:''}
+      </div>
+      ${t.notes?`<div class="b-card-notes">${esc(t.notes)}</div>`:''}
+    </div>`;
+}
+
+function syncFilters() {
+  document.querySelectorAll('[data-sf]').forEach(b => b.classList.toggle('active', b.dataset.sf === S.sf));
+  document.querySelectorAll('[data-pf]').forEach(b => b.classList.toggle('active', b.dataset.pf === S.pf));
+  document.querySelectorAll('[data-df]').forEach(b => b.classList.toggle('active', b.dataset.df === S.df));
+}
+
+// ── Actions ──
+function selInit(id) { S.selInit = id; render(); }
+
+let _dragInitId = null;
+function initDragStart(id) { _dragInitId = id; }
+function initDragOver(e, id) {
+  e.preventDefault();
+  if (_dragInitId === id) return;
+  document.querySelectorAll('.init-item').forEach(el => el.classList.remove('drag-over'));
+  e.currentTarget.classList.add('drag-over');
+}
+function initDragLeave(e) { e.currentTarget.classList.remove('drag-over'); }
+function initDrop(e, toId) {
+  e.preventDefault();
+  document.querySelectorAll('.init-item').forEach(el => el.classList.remove('drag-over'));
+  if (!_dragInitId || _dragInitId === toId) return;
+  const from = S.initiatives.findIndex(i => i.id === _dragInitId);
+  const to   = S.initiatives.findIndex(i => i.id === toId);
+  if (from < 0 || to < 0) return;
+  const [item] = S.initiatives.splice(from, 1);
+  S.initiatives.splice(to, 0, item);
+  _dragInitId = null;
+  persist(); render();
+}
+function toggleHidden(id) {
+  if (S.hidden.has(id)) S.hidden.delete(id); else S.hidden.add(id);
+  if (S.selInit === id) S.selInit = 'all';
+  render();
+}
+function setView(v) {
+  S.view = v;
+  document.getElementById('btnList').classList.toggle('active', v==='list');
+  document.getElementById('btnBoard').classList.toggle('active', v==='board');
+  document.getElementById('btnGantt').classList.toggle('active', v==='gantt');
+  document.getElementById('groupByToggle').style.display = v==='board' ? 'flex' : 'none';
+  render();
+}
+
+function setGroupBy(v) {
+  S.groupBy = v;
+  ['stage','priority','dates'].forEach(k =>
+    document.getElementById('gb' + k.charAt(0).toUpperCase() + k.slice(1)).classList.toggle('active', k===v)
+  );
+  render();
+}
+function setSF(v) { S.sf = v; render(); }
+function setPF(v) { S.pf = v; render(); }
+function setDF(v) { S.df = v; render(); }
+function toggleRecurring() {
+  S.showRecurring = !S.showRecurring;
+  document.getElementById('recurringToggle').classList.toggle('active', S.showRecurring);
+  render();
+}
+function toggleDone(id, occStr) {
+  const t = S.tasks.find(x=>x.id===id);
+  if (!t) return;
+  if (t.recurring) {
+    const occ = occStr || currentOcc(t);
+    if (!occ) return;
+    const occs = [...(t.doneOccurrences||[])];
+    const i = occs.indexOf(occ);
+    if (i >= 0) occs.splice(i, 1); else occs.push(occ);
+    t.doneOccurrences = occs;
+  } else {
+    t.done = !t.done;
+  }
+  persist(); render();
+}
+function quickDelete(id) {
+  if (confirm('Delete this task?')) { S.tasks = S.tasks.filter(x=>x.id!==id); persist(); render(); }
+}
+
+// ── Task Modal ──
+function updateStatusPreview() {
+  const start = document.getElementById('fStart').value;
+  const due   = document.getElementById('fDue').value;
+  const done  = document.getElementById('fDone').checked;
+  const mock  = { done, startDate: start||null, dueDate: due||null };
+  const st    = computeStatus(mock);
+  const SL    = { todo:'To Do', inprogress:'In Progress', overdue:'Overdue', done:'Done' };
+  const CLS   = { todo:'s-todo', inprogress:'s-inprogress', overdue:'s-overdue', done:'s-done' };
+  const el    = document.getElementById('statusPreview');
+  el.textContent = SL[st];
+  el.className = 'status-preview s-badge ' + CLS[st];
+}
+
+function openTaskModal(taskId, occStr) {
+  S.editTask = taskId || null;
+  S.editOccDate = occStr || null;
+  const t = taskId ? S.tasks.find(x=>x.id===taskId) : null;
+  document.getElementById('taskModalTitle').textContent = t ? 'Edit Task' : 'New Task';
+  document.getElementById('fTitle').value = t ? t.title : '';
+  document.getElementById('fStart').value = t ? (t.startDate||'') : '';
+  document.getElementById('fPriority').value = t ? t.priority : 'medium';
+  document.getElementById('fDue').value = t ? (t.dueDate||'') : '';
+  document.getElementById('fNotes').value = t ? (t.notes||'') : '';
+  const occ = t && t.recurring ? (occStr || currentOcc(t)) : null;
+  document.getElementById('fDone').checked = t
+    ? (t.recurring ? isOccDone(t, occ) : !!t.done)
+    : false;
+  // Label: show which occurrence is being marked
+  const doneLabel = document.querySelector('.done-toggle-label');
+  if (t && t.recurring && occ) {
+    const d = new Date(occ+'T00:00:00');
+    doneLabel.textContent = `Mark week of ${d.toLocaleDateString('en-US',{month:'short',day:'numeric'})} as done`;
+  } else {
+    doneLabel.textContent = 'Mark as done';
+  }
+  document.getElementById('fRecurring').value = t ? (t.recurring||'') : '';
+  document.getElementById('taskDelBtn').style.display = t ? 'block' : 'none';
+  document.getElementById('fTitle').style.borderColor = '';
+  const sel = document.getElementById('fInit');
+  sel.innerHTML = '<option value="">No initiative</option>' +
+    S.initiatives.map(i => `<option value="${i.id}" ${t&&t.initiativeId===i.id?'selected':''}>${esc(i.name)}</option>`).join('');
+  if (!t && S.selInit !== 'all') sel.value = S.selInit;
+  updateStatusPreview();
+  document.getElementById('taskOverlay').classList.add('open');
+  setTimeout(() => document.getElementById('fTitle').focus(), 80);
+}
+
+function closeTaskModal() { document.getElementById('taskOverlay').classList.remove('open'); S.editTask = null; }
+
+function saveTask() {
+  const title = document.getElementById('fTitle').value.trim();
+  if (!title) { document.getElementById('fTitle').style.borderColor='var(--high)'; document.getElementById('fTitle').focus(); return; }
+  const data = {
+    title,
+    initiativeId: document.getElementById('fInit').value || null,
+    startDate: document.getElementById('fStart').value || null,
+    dueDate: document.getElementById('fDue').value || null,
+    priority: document.getElementById('fPriority').value,
+    notes: document.getElementById('fNotes').value.trim() || null,
+    done: document.getElementById('fDone').checked,
+    _occDone: S.editOccDate, // signal for recurring occurrence
+    recurring: document.getElementById('fRecurring').value || null,
+  };
+  if (S.editTask) {
+    const idx = S.tasks.findIndex(x=>x.id===S.editTask);
+    if (idx >= 0) {
+      const existing = S.tasks[idx];
+      const { _occDone, done, ...rest } = data;
+      if (existing.recurring) {
+        // For recurring tasks always use doneOccurrences, never t.done
+        const occ = _occDone || currentOcc(existing);
+        const occs = [...(existing.doneOccurrences||[])];
+        const i = occ ? occs.indexOf(occ) : -1;
+        if (occ) { if (done && i < 0) occs.push(occ); if (!done && i >= 0) occs.splice(i, 1); }
+        S.tasks[idx] = { ...existing, ...rest, doneOccurrences: occs };
+      } else {
+        S.tasks[idx] = { ...existing, ...rest, done };
+      }
+    }
+  } else {
+    const { _occDone, ...cleanData } = data;
+    S.tasks.push({ id: uid(), ...cleanData });
+  }
+  persist(); closeTaskModal(); render();
+}
+
+function deleteEditingTask() {
+  if (S.editTask && confirm('Delete this task?')) {
+    S.tasks = S.tasks.filter(x=>x.id!==S.editTask);
+    persist(); closeTaskModal(); render();
+  }
+}
+
+// ── Initiative Modal ──
+function openInitModal(initId) {
+  S.editInit = initId || null;
+  const i = initId ? getInit(initId) : null;
+  document.getElementById('initModalTitle').textContent = i ? 'Edit Initiative' : 'New Initiative';
+  document.getElementById('fInitName').value = i ? i.name : '';
+  document.getElementById('fInitName').style.borderColor = '';
+  document.getElementById('initDelBtn').style.display = i ? 'block' : 'none';
+  S.selColor = i ? i.color : PALETTE[S.initiatives.length % PALETTE.length];
+  renderColors();
+  document.getElementById('initOverlay').classList.add('open');
+  setTimeout(() => document.getElementById('fInitName').focus(), 80);
+}
+
+function closeInitModal() { document.getElementById('initOverlay').classList.remove('open'); S.editInit = null; }
+
+function renderColors() {
+  document.getElementById('colorOpts').innerHTML = PALETTE.map(c =>
+    `<div class="c-swatch ${c===S.selColor?'sel':''}" style="background:${c}" onclick="pickColor('${c}')"></div>`
+  ).join('');
+}
+
+function pickColor(c) { S.selColor = c; renderColors(); }
+
+function saveInit() {
+  const name = document.getElementById('fInitName').value.trim();
+  if (!name) { document.getElementById('fInitName').style.borderColor='var(--high)'; document.getElementById('fInitName').focus(); return; }
+  if (S.editInit) {
+    const i = getInit(S.editInit);
+    if (i) { i.name = name; i.color = S.selColor; }
+  } else {
+    S.initiatives.push({ id: uid(), name, color: S.selColor });
+  }
+  persist(); closeInitModal(); render();
+}
+
+function deleteEditingInit() {
+  if (!S.editInit) return;
+  const cnt = S.tasks.filter(t=>t.initiativeId===S.editInit).length;
+  if (!confirm(cnt ? `Delete this initiative? ${cnt} task(s) will become unassigned.` : 'Delete this initiative?')) return;
+  S.tasks.forEach(t => { if (t.initiativeId===S.editInit) t.initiativeId = null; });
+  S.initiatives = S.initiatives.filter(i=>i.id!==S.editInit);
+  if (S.selInit===S.editInit) S.selInit='all';
+  persist(); closeInitModal(); render();
+}
+
+// ── Keyboard shortcuts ──
+document.getElementById('fStart').addEventListener('change', updateStatusPreview);
+document.getElementById('fDue').addEventListener('change', updateStatusPreview);
+document.getElementById('fDone').addEventListener('change', updateStatusPreview);
+
+document.addEventListener('keydown', e => {
+  if (e.key==='Escape') { closeTaskModal(); closeInitModal(); }
+  if ((e.metaKey||e.ctrlKey) && e.key==='Enter') {
+    if (document.getElementById('taskOverlay').classList.contains('open')) { e.preventDefault(); saveTask(); }
+    if (document.getElementById('initOverlay').classList.contains('open')) { e.preventDefault(); saveInit(); }
+  }
+  if ((e.metaKey||e.ctrlKey) && e.key==='k' && !document.getElementById('taskOverlay').classList.contains('open')) {
+    e.preventDefault(); openTaskModal();
+  }
+});
+
+// ── Gantt drag-to-reschedule ──
+const DAY_W = 38;
+let _gd = null;
+
+function barClick(e, taskId) {
+  if (_gd && _gd.moved) return;
+  openTaskModal(taskId);
+}
+
+function barDragStart(e, taskId, type) {
+  e.preventDefault();
+  e.stopPropagation();
+  const t = S.tasks.find(x => x.id === taskId);
+  if (!t) return;
+  const bar = e.currentTarget.closest('.gd-bar') || e.currentTarget;
+  // Collect all bar rects upfront for vertical hit-testing
+  const allBars = [...document.querySelectorAll('.gd-bar[data-taskid]')].map(el => ({
+    id: el.dataset.taskid, el, rect: el.getBoundingClientRect()
+  }));
+  _gd = {
+    taskId, type, startX: e.clientX, startY: e.clientY,
+    origStart: t.startDate, origDue: t.dueDate,
+    bar, allBars, moved: false, dayDelta: 0,
+    mode: t.recurring ? 'vertical' : null, // recurring can only reorder
+    dropTargetId: null, dropBefore: true,
+  };
+  bar.classList.add('is-dragging');
+  document.addEventListener('mousemove', _gdMove);
+  document.addEventListener('mouseup',   _gdUp);
+}
+
+function _addDays(dateStr, days) {
+  if (!dateStr) return null;
+  const d = new Date(dateStr + 'T00:00:00');
+  d.setDate(d.getDate() + days);
+  return toDateStr(d);
+}
+
+function _gdNewDates() {
+  const { type, dayDelta, origStart, origDue } = _gd;
+  if (type === 'move')  return { start: _addDays(origStart, dayDelta), due: _addDays(origDue, dayDelta) };
+  if (type === 'right') return { start: origStart, due: _addDays(origDue, dayDelta) };
+  if (type === 'left')  return { start: _addDays(origStart, dayDelta), due: origDue };
+}
+
+function _gdMove(e) {
+  if (!_gd) return;
+  const dx = e.clientX - _gd.startX;
+  const dy = e.clientY - _gd.startY;
+
+  // Determine mode on first significant movement
+  if (!_gd.mode) {
+    if (Math.abs(dy) > Math.abs(dx) + 4) _gd.mode = 'vertical';
+    else if (Math.abs(dx) > Math.abs(dy) + 4) _gd.mode = 'horizontal';
+    else return;
+  }
+
+  if (_gd.mode === 'horizontal') {
+    const delta = Math.round(dx / DAY_W);
+    if (delta !== _gd.dayDelta) {
+      _gd.dayDelta = delta;
+      _gd.moved = true;
+      _gd.bar.style.transform = `translateX(${delta * DAY_W}px)`;
+      const nd = _gdNewDates();
+      const fmt = ds => ds ? new Date(ds+'T00:00:00').toLocaleDateString('en-US',{month:'short',day:'numeric'}) : '–';
+      _gd.bar.dataset.title = `${fmt(nd.start)} → ${fmt(nd.due)}`;
+    }
+  } else {
+    // Vertical reorder mode
+    _gd.moved = true;
+    _gd.bar.style.transform = `translateY(${dy}px)`;
+    _gd.bar.style.zIndex = '20';
+
+    // Clear previous drop indicators
+    _gd.allBars.forEach(b => {
+      b.el.classList.remove('gd-drop-above', 'gd-drop-below');
+    });
+    _gd.dropTargetId = null;
+
+    // Find bar under cursor (skip self)
+    const target = _gd.allBars.find(b => {
+      if (b.id === _gd.taskId) return false;
+      return e.clientY >= b.rect.top && e.clientY <= b.rect.bottom;
+    });
+    if (target) {
+      _gd.dropTargetId = target.id;
+      const mid = target.rect.top + target.rect.height / 2;
+      _gd.dropBefore = e.clientY < mid;
+      target.el.classList.add(_gd.dropBefore ? 'gd-drop-above' : 'gd-drop-below');
+    }
+  }
+}
+
+function _gdUp() {
+  document.removeEventListener('mousemove', _gdMove);
+  document.removeEventListener('mouseup',   _gdUp);
+  if (!_gd) return;
+
+  // Clear drop indicators
+  _gd.allBars.forEach(b => b.el.classList.remove('gd-drop-above', 'gd-drop-below'));
+
+  if (_gd.mode === 'vertical' && _gd.moved && _gd.dropTargetId) {
+    const fromIdx = S.tasks.findIndex(x => x.id === _gd.taskId);
+    const toIdx   = S.tasks.findIndex(x => x.id === _gd.dropTargetId);
+    if (fromIdx >= 0 && toIdx >= 0) {
+      const [item] = S.tasks.splice(fromIdx, 1);
+      const newTo  = S.tasks.findIndex(x => x.id === _gd.dropTargetId);
+      S.tasks.splice(_gd.dropBefore ? newTo : newTo + 1, 0, item);
+      persist();
+    }
+    render();
+  } else if (_gd.mode === 'horizontal' && _gd.moved && _gd.dayDelta !== 0) {
+    const t = S.tasks.find(x => x.id === _gd.taskId);
+    if (t) {
+      const nd = _gdNewDates();
+      if (nd.start && nd.due && nd.start > nd.due) {
+        _gd.bar.style.transform = ''; _gd.bar.classList.remove('is-dragging'); _gd = null; return;
+      }
+      t.startDate = nd.start; t.dueDate = nd.due; persist();
+    }
+    render();
+  } else {
+    _gd.bar.style.transform = '';
+    _gd.bar.classList.remove('is-dragging');
+  }
+  _gd = null;
+}
+
+function renderGantt(tasks) {
+  // DAY_W = 38 is defined globally above
+  const LABEL_W = 168;
+  const PAD    = 14;
+
+  const now = new Date(); now.setHours(0,0,0,0);
+
+  // Compute date range across all tasks
+  let minD = new Date(now), maxD = new Date(now);
+  for (const t of tasks) {
+    if (t.startDate) { const d = new Date(t.startDate+'T00:00:00'); if (d < minD) minD = d; if (d > maxD) maxD = d; }
+    if (t.dueDate)   { const d = new Date(t.dueDate  +'T00:00:00'); if (d < minD) minD = d; if (d > maxD) maxD = d; }
+  }
+  minD = new Date(minD.getTime() - PAD * 86400000);
+  maxD = new Date(maxD.getTime() + PAD * 86400000);
+  const totalDays = Math.round((maxD - minD) / 86400000) + 1;
+
+  const dayIdx  = ds => Math.round((new Date(ds+'T00:00:00') - minD) / 86400000);
+  const todayIdx = Math.round((now - minD) / 86400000);
+
+  // Groups
+  const groups = [];
+  for (const i of S.initiatives) {
+    const t = tasks.filter(x => x.initiativeId === i.id);
+    if (t.length) groups.push({ i, tasks: t });
+  }
+  const none = tasks.filter(x => !S.initiatives.find(i => i.id === x.initiativeId));
+  if (none.length) groups.push({ i:{ name:'No Initiative', color:'#8b92a8' }, tasks: none });
+
+  if (!groups.length) {
+    document.getElementById('content').innerHTML = `<div class="empty"><div class="empty-icon">📅</div><div class="empty-txt">Add tasks with start and due dates to see the Gantt chart.</div><button class="btn-primary" onclick="openTaskModal()">＋ Add task</button></div>`;
+    return;
+  }
+
+  // Month spans
+  const months = [];
+  for (let i = 0; i < totalDays; i++) {
+    const d = new Date(minD.getTime() + i * 86400000);
+    const key = d.getFullYear()+'-'+d.getMonth();
+    if (!months.length || months[months.length-1].key !== key)
+      months.push({ key, label: d.toLocaleDateString('en-US',{month:'long',year:'numeric'}), start: i, count: 1 });
+    else months[months.length-1].count++;
+  }
+
+  // Header rows
+  const monthCells = months.map(m =>
+    `<div class="gd-month" style="grid-column:${m.start+1}/span ${m.count}">${m.label}</div>`
+  ).join('');
+
+  const dayCells = Array.from({length:totalDays},(_,i) => {
+    const d = new Date(minD.getTime() + i * 86400000);
+    const isToday = i === todayIdx;
+    const isWE = d.getDay()===0||d.getDay()===6;
+    const isMon = d.getDay()===1;
+    return `<div class="gd-day ${isToday?'gd-today-hd':''} ${isWE?'gd-wknd':''} ${isMon&&!isToday?'gd-mon':''}">${d.getDate()}</div>`;
+  }).join('');
+
+  // Task rows — explicit grid-row on every element so recurring bars stay in one row
+  let bodyRows = '';
+  let row = 3; // rows 1=months, 2=days, 3+=body
+
+  for (const g of groups) {
+    bodyRows += `<div class="gd-group-row" style="grid-row:${row};grid-column:1/-1">
+      <div class="gd-group-dot" style="background:${g.i.color}"></div>${esc(g.i.name)}
+    </div>`;
+    row++;
+
+    for (const t of g.tasks) {
+      const st = computeStatus(t);
+
+      if (t.recurring === 'weekly' || t.recurring === 'monthly') {
+        const anchor = t.startDate ? new Date(t.startDate+'T00:00:00') : new Date(now);
+        const duration = (t.startDate && t.dueDate)
+          ? Math.max(1, Math.round((new Date(t.dueDate+'T00:00:00') - new Date(t.startDate+'T00:00:00')) / 86400000) + 1)
+          : 1;
+        const advanceOcc = d => {
+          if (t.recurring === 'monthly') return new Date(addMonths(toDateStr(d), 1)+'T00:00:00');
+          return new Date(d.getTime() + 7*86400000);
+        };
+        let occ = new Date(anchor);
+        while (occ < minD) occ = advanceOcc(occ);
+        while (occ <= maxD) {
+          const idx = Math.round((occ - minD) / 86400000);
+          const idxEnd = Math.min(totalDays - 1, idx + duration - 1);
+          if (idx >= 0 && idx < totalDays) {
+            const isNow = todayIdx >= idx && todayIdx <= idxEnd;
+            const occStr = toDateStr(occ);
+            const isDone = isOccDone(t, occStr);
+            bodyRows += `<div class="gd-bar ${isDone?'gd-bar-done':'gd-bar-recurring'} ${isNow&&!isDone?'gd-bar-recurring-now':''}"
+                 style="grid-row:${row};grid-column:${idx+1}/${idxEnd+2}"
+                 data-title="↻ ${esc(t.title)}" onclick="openTaskModal('${t.id}','${occStr}')">
+               <span class="gd-bar-text" style="${isDone?'text-decoration:line-through;opacity:.6':''}">↻ ${esc(t.title)}</span>
+             </div>`;
+          }
+          occ = advanceOcc(occ);
+        }
+      } else {
+        const hasS = !!t.startDate, hasD = !!t.dueDate;
+        let s = hasS ? dayIdx(t.startDate) : (hasD ? dayIdx(t.dueDate) : todayIdx);
+        let e = hasD ? dayIdx(t.dueDate)   : (hasS ? dayIdx(t.startDate) : todayIdx);
+        if (s > e) [s,e] = [e,s];
+        s = Math.max(0, s); e = Math.min(totalDays-1, e);
+        bodyRows += `<div class="gd-bar gd-bar-${t.done?'done':st}"
+             style="grid-row:${row};grid-column:${s+1}/${e+2}"
+             data-title="${esc(t.title)}"
+             data-taskid="${t.id}"
+             onmousedown="barDragStart(event,'${t.id}','move')"
+             onclick="barClick(event,'${t.id}')">
+           <div class="gd-bar-handle lh" onmousedown="barDragStart(event,'${t.id}','left')"></div>
+           <span class="gd-bar-text">${esc(t.title)}</span>
+           <div class="gd-bar-handle rh" onmousedown="barDragStart(event,'${t.id}','right')"></div>
+         </div>`;
+      }
+      row++;
+    }
+  }
+
+  const totalRows = row - 1;
+
+  const todayLeft = todayIdx * DAY_W + Math.floor(DAY_W / 2);
+
+  document.getElementById('content').innerHTML = `
+    <div class="gd-outer">
+      <div class="gd-scroll" id="gdScroll">
+        <div class="gd-grid" style="grid-template-columns:repeat(${totalDays},${DAY_W}px);grid-template-rows:26px 28px repeat(${totalRows-2},auto)">
+          ${monthCells}
+          ${dayCells}
+          ${bodyRows}
+        </div>
+        <div class="gd-today-line" style="left:${todayLeft}px"></div>
+      </div>
+    </div>`;
+
+  // Auto-scroll to centre on today
+  setTimeout(() => {
+    const el = document.getElementById('gdScroll');
+    if (el) el.scrollLeft = Math.max(0, todayLeft - el.clientWidth / 2);
+  }, 30);
+}
+
+function exportState() {
+  const state = { initiatives: S.initiatives, tasks: S.tasks };
+  const json = JSON.stringify(state, null, 2);
+  const a = document.createElement('a');
+  a.href = 'data:application/json;charset=utf-8,' + encodeURIComponent(json);
+  a.download = `deliverables-state-${new Date().toISOString().slice(0,10)}.json`;
+  a.click();
+}
+
+function exportCSV() {
+  const SL = { todo:'To Do', inprogress:'In Progress', overdue:'Overdue', done:'Done' };
+  const PL = { high:'High', medium:'Medium', low:'Low' };
+  const rows = [['Title','Initiative','Status','Priority','Start Date','Due Date','Notes']];
+  for (const t of S.tasks) {
+    const i = getInit(t.initiativeId);
+    rows.push([
+      t.title,
+      i ? i.name : '',
+      SL[computeStatus(t)],
+      PL[t.priority] || t.priority,
+      t.startDate || '',
+      t.dueDate || '',
+      t.notes || '',
+    ].map(v => `"${String(v).replace(/"/g,'""')}"`));
+  }
+  const csv = rows.map(r => r.join(',')).join('\n');
+  const a = document.createElement('a');
+  a.href = 'data:text/csv;charset=utf-8,' + encodeURIComponent(csv);
+  a.download = `deliverables-${new Date().toISOString().slice(0,10)}.csv`;
+  a.click();
+}
+
+load();
+render();
+loadRemote();
+</script>
+</body>
+</html>
