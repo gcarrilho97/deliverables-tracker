@@ -1,49 +1,423 @@
 {
   "initiatives": [
-    {"id":"mq8604g11o2y77z11w8","name":"1 - New FW","color":"#4f8ef7"},
-    {"id":"mq8616b9dsjh0qujw4k","name":"2 - Triage Automation","color":"#a78bfa"},
-    {"id":"mq861bpt0b76vx2etfyl","name":"3 - New LOBs","color":"#f472b6"},
-    {"id":"mq9mhl2ei861f4nf8u","name":"4 - Bcom 3PI Mapping","color":"#fbbf24"},
-    {"id":"mq868scetuwckgy1fk","name":"5 - Adhoc","color":"#fb923c"},
-    {"id":"mq87i7ake3fcqv70ool","name":"6 - Admin","color":"#34d399"},
-    {"id":"mqb2nnucc1p6ygjkif9","name":"7 - Project Resto","color":"#f87171"},
-    {"id":"mqb2o8sqoxrmhat2hge","name":"8 - Project Startup","color":"#2dd4bf"}
+    {
+      "id": "mq8604g11o2y77z11w8",
+      "name": "1 - New FW",
+      "color": "#4f8ef7"
+    },
+    {
+      "id": "mq8616b9dsjh0qujw4k",
+      "name": "2 - Triage Automation",
+      "color": "#a78bfa"
+    },
+    {
+      "id": "mq9mhl2ei861f4nf8u",
+      "name": "4 - Bcom 3PI Mapping",
+      "color": "#fbbf24"
+    },
+    {
+      "id": "mq868scetuwckgy1fk",
+      "name": "5 - Adhoc",
+      "color": "#fb923c"
+    },
+    {
+      "id": "mq87i7ake3fcqv70ool",
+      "name": "6 - Admin",
+      "color": "#34d399"
+    },
+    {
+      "id": "mqb2nnucc1p6ygjkif9",
+      "name": "7 - Project Resto",
+      "color": "#f87171"
+    },
+    {
+      "id": "mqb2o8sqoxrmhat2hge",
+      "name": "8 - Project Startup",
+      "color": "#2dd4bf"
+    }
   ],
   "tasks": [
-    {"id":"mq86akxgmop6blx9jkg","title":"Apply the Blanket Chains-level Restriction Globally","initiativeId":"mq8604g11o2y77z11w8","priority":"high","dueDate":"2026-06-12","notes":"Waiting for David's sign off","done":true,"startDate":"2026-06-08","recurring":null},
-    {"id":"mq8a4c6t868ver8gsu6","title":"Taxes","initiativeId":"mq87i7ake3fcqv70ool","priority":"high","dueDate":"2026-06-26","notes":null,"done":false,"startDate":"2026-06-15","recurring":null},
-    {"id":"mq8a532pmpso4pck8ue","title":"Creche GVA","initiativeId":"mq87i7ake3fcqv70ool","priority":"low","dueDate":"2026-07-31","notes":"The sooner the better","done":false,"startDate":"2026-07-01"},
-    {"id":"mq8a7zt5ih6p55n6jlj","title":"OD Restriction change","initiativeId":"mq8604g11o2y77z11w8","priority":"medium","dueDate":"2026-06-12","notes":"Phase 1: Allow SA rates to flow\nPhase 2: Incorporate OD status on Blanket + Grid and turn off OD rule","done":true,"startDate":"2026-06-08","recurring":null},
-    {"id":"mqezyjksypbdkv87ln","title":"Analytics: Adhoc pull to answer MI and IHG questions","initiativeId":"mq8604g11o2y77z11w8","startDate":"2026-06-15","dueDate":"2026-06-23","priority":"medium","notes":null,"done":false,"recurring":null},
-    {"id":"mq96q6v5oe2bx9fuo6n","title":"Analytics: YoY growth comparison between in-scope vs out-of-scope partners","initiativeId":"mq8604g11o2y77z11w8","priority":"low","dueDate":"2026-06-23","notes":null,"done":false,"startDate":"2026-06-15","recurring":null},
-    {"id":"mqf3psucqvktmwqlhvo","title":"Analytics: Add margin to the pre-post dash","initiativeId":"mq8604g11o2y77z11w8","startDate":"2026-06-15","dueDate":"2026-06-23","priority":"medium","notes":null,"done":false,"recurring":null},
-    {"id":"mq8aog56prfid7lexb","title":"Within the Grid considering Purchase transactions only","initiativeId":"mq8604g11o2y77z11w8","priority":"medium","dueDate":"2026-06-23","notes":"Requires alignment with analytics","done":false,"startDate":"2026-06-15"},
-    {"id":"mq8amnivwhiyy0ykqwq","title":"Adjust the Grid logic to account if cases/GBV increase because GBV decrease","initiativeId":"mq8604g11o2y77z11w8","priority":"high","dueDate":"2026-06-23","notes":"Needs alignment with Analytics","done":false,"startDate":"2026-06-15","recurring":null},
-    {"id":"mqashlvmlvyyis51atd","title":"Analytics: Restrictions impact from a Supply perspective","initiativeId":"mq8604g11o2y77z11w8","startDate":"2026-06-24","dueDate":"2026-07-07","priority":"medium","notes":null,"done":false,"recurring":null},
-    {"id":"mqez0kwbprsj5pemeof","title":"Analytics: Cases Volumes & Ratio Tab","initiativeId":"mq8604g11o2y77z11w8","startDate":"2026-06-24","dueDate":"2026-07-07","priority":"medium","notes":null,"done":false,"recurring":null},
-    {"id":"mqaq8dycu0mr2r8a7a","title":"Review how to offer more protection to larger chains","initiativeId":"mq8604g11o2y77z11w8","startDate":"2026-06-24","dueDate":"2026-07-07","priority":"medium","notes":"Come up with a proposal to offer more protection to larger chains that will never reach the 25% of the above rule.","done":false,"recurring":null},
-    {"id":"mq96hwyujcnqfpjff3g","title":"Change the Velocity of partner pattern changes within the Blanket","initiativeId":"mq8604g11o2y77z11w8","priority":"medium","dueDate":"2026-07-07","notes":null,"done":false,"startDate":"2026-06-24","recurring":null},
-    {"id":"mq96gqlv5tocvdw222n","title":"Change the supply prio score to focus more where vios are happening","initiativeId":"mq8604g11o2y77z11w8","priority":"medium","dueDate":"2026-07-21","notes":"Score = NBV received from CIDs in scope of Blanket * cases per NBV of demand they receive * number of cases raised L12M * Nbr of 3PI BML Losses * Boost Factors (OD, Sensitive Chains, Chains raising cases, Key Markets)","done":false,"startDate":"2026-07-08","recurring":null},
-    {"id":"mq96jqfwhfgb2xuq66i","title":"Decide on refreshing the blanket more frequently","initiativeId":"mq8604g11o2y77z11w8","priority":"low","dueDate":"2026-07-21","notes":null,"done":false,"startDate":"2026-07-08"},
-    {"id":"mqaqozq9xh4dhspzeg8","title":"Review merging the OD restriction into the Blanket","initiativeId":"mq8604g11o2y77z11w8","startDate":"2026-07-22","dueDate":"2026-08-04","priority":"medium","notes":"Review merging the OD restriction into the Blanket, i.e., expand the new FW blanket to also protect properties with active OD rates (on top of its current supply scope)","done":false,"recurring":null},
-    {"id":"mq96kyl3gqdedrjs9o","title":"Follow up on TAAP Leakage","initiativeId":"mq868scetuwckgy1fk","priority":"medium","dueDate":"2026-07-07","notes":null,"done":false,"startDate":"2026-07-01"},
-    {"id":"mq96mpq12ih7u6kqwir","title":"BML Mapping Handover","initiativeId":"mq9mhl2ei861f4nf8u","priority":"medium","dueDate":"2026-07-07","notes":null,"done":false,"startDate":"2026-07-01","recurring":null},
-    {"id":"mq96og333bqsbz7qyg2","title":"Adjust the code given the many-to-many BML mapping","initiativeId":"mq8604g11o2y77z11w8","priority":"medium","dueDate":"2026-08-04","notes":null,"done":false,"startDate":"2026-07-22"},
-    {"id":"mq96r3apdzljgsecizs","title":"Reviewin how to share the list of properties impacted by the FWs with AMs","initiativeId":"mq8604g11o2y77z11w8","priority":"low","dueDate":"2026-08-18","notes":null,"done":false,"startDate":"2026-08-05"},
-    {"id":"mq99mlnt0q7v7onhj2p","title":"Review stopping SAR FW","initiativeId":"mq8604g11o2y77z11w8","priority":"low","dueDate":"2026-08-18","notes":null,"done":false,"startDate":"2026-08-05","recurring":null},
-    {"id":"mq96rwhhyo4m6ao3tz9","title":"The reco from YY on code optimisation (regarding the join of incidents with NBV)","initiativeId":"mq8604g11o2y77z11w8","priority":"low","dueDate":"2026-09-01","notes":null,"done":false,"startDate":"2026-08-19","recurring":null},
-    {"id":"mq9odi354slfkei38ah","title":"Refresh FW Rules","initiativeId":"mq8604g11o2y77z11w8","startDate":"2026-06-08","dueDate":"2026-06-10","priority":"high","notes":null,"done":false,"recurring":"weekly","doneOccurrences":["2026-06-08"]},
-    {"id":"mqb0dlczecs9rin9ftj","title":"Store List of Global Properties with contact info","initiativeId":"mqb2o8sqoxrmhat2hge","startDate":"2026-06-15","dueDate":"2026-06-19","priority":"medium","notes":"Include data like NBV, Cases raised, etc","done":false,"recurring":null},
-    {"id":"mqb0edkvb6j7d85ul2","title":"Store list of B2B partners with contact info","initiativeId":"mqb2o8sqoxrmhat2hge","startDate":"2026-06-22","dueDate":"2026-06-26","priority":"medium","notes":"Include data like NBV, Cases raised, etc","done":false,"recurring":null},
-    {"id":"mqb2cjykp5ppvkc0y1","title":"Get clarity on outstanding questions","initiativeId":"mq8616b9dsjh0qujw4k","startDate":"2026-06-15","dueDate":"2026-06-19","priority":"medium","notes":"The key outstanding questions I have are:\n\nWhat are the actual dependencies / blockers for your team to kick off?\nWho's going to work on those dependencies and when will they be completed?","done":false,"recurring":null},
-    {"id":"mqb2t7f9spftiqrb6r","title":"Close contract with Paula","initiativeId":"mqb2nnucc1p6ygjkif9","startDate":"2026-06-15","dueDate":"2026-06-19","priority":"medium","notes":null,"done":false,"recurring":null},
-    {"id":"mqb2tvzvgrn935rpsk","title":"Discuss Contract with Augusto","initiativeId":"mqb2nnucc1p6ygjkif9","startDate":"2026-06-16","dueDate":"2026-06-18","priority":"medium","notes":null,"done":false,"recurring":null},
-    {"id":"mqb2wb9n8dftru0hdoc","title":"Get offer from good collective","initiativeId":"mqb2nnucc1p6ygjkif9","startDate":"2026-06-15","dueDate":"2026-06-19","priority":"medium","notes":"With Tiago","done":false,"recurring":null},
-    {"id":"mqb2vh5nfwx23ss2xpf","title":"Sign contract with Augusto","initiativeId":"mqb2nnucc1p6ygjkif9","startDate":"2026-06-22","dueDate":"2026-06-30","priority":"medium","notes":null,"done":false,"recurring":null},
-    {"id":"mqb2xgg18lxe57f0io3","title":"Sign Good Collective contract","initiativeId":"mqb2nnucc1p6ygjkif9","startDate":"2026-07-01","dueDate":"2026-07-07","priority":"medium","notes":null,"done":false,"recurring":null},
-    {"id":"mqb34ozw0cnxudplhdz","title":"Sign contract with Sebas & Rita","initiativeId":"mqb2nnucc1p6ygjkif9","startDate":"2026-07-01","dueDate":"2026-07-07","priority":"medium","notes":null,"done":false,"recurring":null},
-    {"id":"mqb384yavups6yf5gjg","title":"Assess market gaps and value pro","initiativeId":"mqb2o8sqoxrmhat2hge","startDate":"2026-06-29","dueDate":"2026-07-10","priority":"medium","notes":null,"done":false,"recurring":null},
-    {"id":"mqf5khqwcyuqhx0pnc","title":"Pricing Guardrails","initiativeId":"mq868scetuwckgy1fk","startDate":"2026-06-15","dueDate":"2026-06-23","priority":"high","notes":"Reply to Julia's thread and share the initial list with Jamie / Aday with list of known offenders + CN / HK POSa + Turkey POSa (TBD).\n\nAs a phase 2: Centralise the definitions of Risk and make sure we refresh them frequently","done":false,"recurring":null},
-    {"id":"mqgg59f9nso1t080ofj","title":"Log work from CH","initiativeId":"mq87i7ake3fcqv70ool","startDate":"2026-06-25","dueDate":"2026-07-02","priority":"medium","notes":null,"done":false,"recurring":"monthly"}
+    {
+      "id": "mq86akxgmop6blx9jkg",
+      "title": "Apply the Blanket Chains-level Restriction Globally",
+      "initiativeId": "mq8604g11o2y77z11w8",
+      "priority": "high",
+      "dueDate": "2026-06-12",
+      "notes": "Waiting for David's sign off",
+      "done": true,
+      "startDate": "2026-06-08",
+      "recurring": null
+    },
+    {
+      "id": "mq8a4c6t868ver8gsu6",
+      "title": "Taxes",
+      "initiativeId": "mq87i7ake3fcqv70ool",
+      "priority": "high",
+      "dueDate": "2026-06-26",
+      "notes": null,
+      "done": false,
+      "startDate": "2026-06-15",
+      "recurring": null
+    },
+    {
+      "id": "mq8a532pmpso4pck8ue",
+      "title": "Creche GVA",
+      "initiativeId": "mq87i7ake3fcqv70ool",
+      "priority": "low",
+      "dueDate": "2026-07-31",
+      "notes": "The sooner the better",
+      "done": false,
+      "startDate": "2026-07-01"
+    },
+    {
+      "id": "mq8a7zt5ih6p55n6jlj",
+      "title": "OD Restriction change",
+      "initiativeId": "mq8604g11o2y77z11w8",
+      "priority": "medium",
+      "dueDate": "2026-06-12",
+      "notes": "Phase 1: Allow SA rates to flow\nPhase 2: Incorporate OD status on Blanket + Grid and turn off OD rule",
+      "done": true,
+      "startDate": "2026-06-08",
+      "recurring": null
+    },
+    {
+      "id": "mqezyjksypbdkv87ln",
+      "title": "Analytics: Adhoc pull to answer MI and IHG questions",
+      "initiativeId": "mq8604g11o2y77z11w8",
+      "startDate": "2026-06-15",
+      "dueDate": "2026-06-23",
+      "priority": "medium",
+      "notes": null,
+      "done": false,
+      "recurring": null
+    },
+    {
+      "id": "mq96q6v5oe2bx9fuo6n",
+      "title": "Analytics: YoY growth comparison between in-scope vs out-of-scope partners",
+      "initiativeId": "mq8604g11o2y77z11w8",
+      "priority": "low",
+      "dueDate": "2026-06-23",
+      "notes": null,
+      "done": false,
+      "startDate": "2026-06-15",
+      "recurring": null
+    },
+    {
+      "id": "mqf3psucqvktmwqlhvo",
+      "title": "Analytics: Add margin to the pre-post dash",
+      "initiativeId": "mq8604g11o2y77z11w8",
+      "startDate": "2026-06-15",
+      "dueDate": "2026-06-23",
+      "priority": "medium",
+      "notes": null,
+      "done": false,
+      "recurring": null
+    },
+    {
+      "id": "mq8aog56prfid7lexb",
+      "title": "Within the Grid considering Purchase transactions only",
+      "initiativeId": "mq8604g11o2y77z11w8",
+      "priority": "medium",
+      "dueDate": "2026-06-23",
+      "notes": "Requires alignment with analytics",
+      "done": false,
+      "startDate": "2026-06-15"
+    },
+    {
+      "id": "mq8amnivwhiyy0ykqwq",
+      "title": "Adjust the Grid logic to account if cases/GBV increase because GBV decrease",
+      "initiativeId": "mq8604g11o2y77z11w8",
+      "priority": "high",
+      "dueDate": "2026-06-23",
+      "notes": "Needs alignment with Analytics",
+      "done": false,
+      "startDate": "2026-06-15",
+      "recurring": null
+    },
+    {
+      "id": "mqashlvmlvyyis51atd",
+      "title": "Analytics: Restrictions impact from a Supply perspective",
+      "initiativeId": "mq8604g11o2y77z11w8",
+      "startDate": "2026-06-24",
+      "dueDate": "2026-07-07",
+      "priority": "medium",
+      "notes": null,
+      "done": false,
+      "recurring": null
+    },
+    {
+      "id": "mqez0kwbprsj5pemeof",
+      "title": "Analytics: Cases Volumes & Ratio Tab",
+      "initiativeId": "mq8604g11o2y77z11w8",
+      "startDate": "2026-06-24",
+      "dueDate": "2026-07-07",
+      "priority": "medium",
+      "notes": null,
+      "done": false,
+      "recurring": null
+    },
+    {
+      "id": "mqaq8dycu0mr2r8a7a",
+      "title": "Review how to offer more protection to larger chains",
+      "initiativeId": "mq8604g11o2y77z11w8",
+      "startDate": "2026-06-24",
+      "dueDate": "2026-07-07",
+      "priority": "medium",
+      "notes": "Come up with a proposal to offer more protection to larger chains that will never reach the 25% of the above rule.",
+      "done": false,
+      "recurring": null
+    },
+    {
+      "id": "mq96hwyujcnqfpjff3g",
+      "title": "Change the Velocity of partner pattern changes within the Blanket",
+      "initiativeId": "mq8604g11o2y77z11w8",
+      "priority": "medium",
+      "dueDate": "2026-07-07",
+      "notes": null,
+      "done": false,
+      "startDate": "2026-06-24",
+      "recurring": null
+    },
+    {
+      "id": "mq96gqlv5tocvdw222n",
+      "title": "Change the supply prio score to focus more where vios are happening",
+      "initiativeId": "mq8604g11o2y77z11w8",
+      "priority": "medium",
+      "dueDate": "2026-07-21",
+      "notes": "Score = NBV received from CIDs in scope of Blanket * cases per NBV of demand they receive * number of cases raised L12M * Nbr of 3PI BML Losses * Boost Factors (OD, Sensitive Chains, Chains raising cases, Key Markets)",
+      "done": false,
+      "startDate": "2026-07-08",
+      "recurring": null
+    },
+    {
+      "id": "mq96jqfwhfgb2xuq66i",
+      "title": "Decide on refreshing the blanket more frequently",
+      "initiativeId": "mq8604g11o2y77z11w8",
+      "priority": "low",
+      "dueDate": "2026-07-21",
+      "notes": null,
+      "done": false,
+      "startDate": "2026-07-08"
+    },
+    {
+      "id": "mqaqozq9xh4dhspzeg8",
+      "title": "Review merging the OD restriction into the Blanket",
+      "initiativeId": "mq8604g11o2y77z11w8",
+      "startDate": "2026-07-22",
+      "dueDate": "2026-08-04",
+      "priority": "medium",
+      "notes": "Review merging the OD restriction into the Blanket, i.e., expand the new FW blanket to also protect properties with active OD rates (on top of its current supply scope)",
+      "done": false,
+      "recurring": null
+    },
+    {
+      "id": "mq96kyl3gqdedrjs9o",
+      "title": "Follow up on TAAP Leakage",
+      "initiativeId": "mq868scetuwckgy1fk",
+      "priority": "medium",
+      "dueDate": "2026-07-07",
+      "notes": null,
+      "done": false,
+      "startDate": "2026-07-01"
+    },
+    {
+      "id": "mq96mpq12ih7u6kqwir",
+      "title": "BML Mapping Handover",
+      "initiativeId": "mq9mhl2ei861f4nf8u",
+      "priority": "medium",
+      "dueDate": "2026-07-07",
+      "notes": null,
+      "done": false,
+      "startDate": "2026-07-01",
+      "recurring": null
+    },
+    {
+      "id": "mq96og333bqsbz7qyg2",
+      "title": "Adjust the code given the many-to-many BML mapping",
+      "initiativeId": "mq8604g11o2y77z11w8",
+      "priority": "medium",
+      "dueDate": "2026-08-04",
+      "notes": null,
+      "done": false,
+      "startDate": "2026-07-22"
+    },
+    {
+      "id": "mq96r3apdzljgsecizs",
+      "title": "Reviewin how to share the list of properties impacted by the FWs with AMs",
+      "initiativeId": "mq8604g11o2y77z11w8",
+      "priority": "low",
+      "dueDate": "2026-08-18",
+      "notes": null,
+      "done": false,
+      "startDate": "2026-08-05"
+    },
+    {
+      "id": "mq99mlnt0q7v7onhj2p",
+      "title": "Review stopping SAR FW",
+      "initiativeId": "mq8604g11o2y77z11w8",
+      "priority": "low",
+      "dueDate": "2026-08-18",
+      "notes": null,
+      "done": false,
+      "startDate": "2026-08-05",
+      "recurring": null
+    },
+    {
+      "id": "mq96rwhhyo4m6ao3tz9",
+      "title": "The reco from YY on code optimisation (regarding the join of incidents with NBV)",
+      "initiativeId": "mq8604g11o2y77z11w8",
+      "priority": "low",
+      "dueDate": "2026-09-01",
+      "notes": null,
+      "done": false,
+      "startDate": "2026-08-19",
+      "recurring": null
+    },
+    {
+      "id": "mq9odi354slfkei38ah",
+      "title": "Refresh FW Rules",
+      "initiativeId": "mq8604g11o2y77z11w8",
+      "startDate": "2026-06-08",
+      "dueDate": "2026-06-10",
+      "priority": "high",
+      "notes": null,
+      "done": false,
+      "recurring": "weekly",
+      "doneOccurrences": [
+        "2026-06-08"
+      ]
+    },
+    {
+      "id": "mqb0dlczecs9rin9ftj",
+      "title": "Store List of Global Properties with contact info",
+      "initiativeId": "mqb2o8sqoxrmhat2hge",
+      "startDate": "2026-06-15",
+      "dueDate": "2026-06-19",
+      "priority": "medium",
+      "notes": "Include data like NBV, Cases raised, etc",
+      "done": false,
+      "recurring": null
+    },
+    {
+      "id": "mqb0edkvb6j7d85ul2",
+      "title": "Store list of B2B partners with contact info",
+      "initiativeId": "mqb2o8sqoxrmhat2hge",
+      "startDate": "2026-06-22",
+      "dueDate": "2026-06-26",
+      "priority": "medium",
+      "notes": "Include data like NBV, Cases raised, etc",
+      "done": false,
+      "recurring": null
+    },
+    {
+      "id": "mqb2cjykp5ppvkc0y1",
+      "title": "Get clarity on outstanding questions",
+      "initiativeId": "mq8616b9dsjh0qujw4k",
+      "startDate": "2026-06-15",
+      "dueDate": "2026-06-19",
+      "priority": "medium",
+      "notes": "The key outstanding questions I have are:\n\nWhat are the actual dependencies / blockers for your team to kick off?\nWho's going to work on those dependencies and when will they be completed?",
+      "done": false,
+      "recurring": null
+    },
+    {
+      "id": "mqb2t7f9spftiqrb6r",
+      "title": "Close contract with Paula",
+      "initiativeId": "mqb2nnucc1p6ygjkif9",
+      "startDate": "2026-06-15",
+      "dueDate": "2026-06-19",
+      "priority": "medium",
+      "notes": null,
+      "done": false,
+      "recurring": null
+    },
+    {
+      "id": "mqb2tvzvgrn935rpsk",
+      "title": "Discuss Contract with Augusto",
+      "initiativeId": "mqb2nnucc1p6ygjkif9",
+      "startDate": "2026-06-16",
+      "dueDate": "2026-06-18",
+      "priority": "medium",
+      "notes": null,
+      "done": false,
+      "recurring": null
+    },
+    {
+      "id": "mqb2wb9n8dftru0hdoc",
+      "title": "Get offer from good collective",
+      "initiativeId": "mqb2nnucc1p6ygjkif9",
+      "startDate": "2026-06-15",
+      "dueDate": "2026-06-19",
+      "priority": "medium",
+      "notes": "With Tiago",
+      "done": false,
+      "recurring": null
+    },
+    {
+      "id": "mqb2vh5nfwx23ss2xpf",
+      "title": "Sign contract with Augusto",
+      "initiativeId": "mqb2nnucc1p6ygjkif9",
+      "startDate": "2026-06-22",
+      "dueDate": "2026-06-30",
+      "priority": "medium",
+      "notes": null,
+      "done": false,
+      "recurring": null
+    },
+    {
+      "id": "mqb2xgg18lxe57f0io3",
+      "title": "Sign Good Collective contract",
+      "initiativeId": "mqb2nnucc1p6ygjkif9",
+      "startDate": "2026-07-01",
+      "dueDate": "2026-07-07",
+      "priority": "medium",
+      "notes": null,
+      "done": false,
+      "recurring": null
+    },
+    {
+      "id": "mqb34ozw0cnxudplhdz",
+      "title": "Sign contract with Sebas & Rita",
+      "initiativeId": "mqb2nnucc1p6ygjkif9",
+      "startDate": "2026-07-01",
+      "dueDate": "2026-07-07",
+      "priority": "medium",
+      "notes": null,
+      "done": false,
+      "recurring": null
+    },
+    {
+      "id": "mqb384yavups6yf5gjg",
+      "title": "Assess market gaps and value pro",
+      "initiativeId": "mqb2o8sqoxrmhat2hge",
+      "startDate": "2026-06-29",
+      "dueDate": "2026-07-10",
+      "priority": "medium",
+      "notes": null,
+      "done": false,
+      "recurring": null
+    },
+    {
+      "id": "mqf5khqwcyuqhx0pnc",
+      "title": "Pricing Guardrails",
+      "initiativeId": "mq868scetuwckgy1fk",
+      "startDate": "2026-06-15",
+      "dueDate": "2026-06-23",
+      "priority": "high",
+      "notes": "Reply to Julia's thread and share the initial list with Jamie / Aday with list of known offenders + CN / HK POSa + Turkey POSa (TBD).\n\nAs a phase 2: Centralise the definitions of Risk and make sure we refresh them frequently",
+      "done": false,
+      "recurring": null
+    },
+    {
+      "id": "mqgg59f9nso1t080ofj",
+      "title": "Log work from CH",
+      "initiativeId": "mq87i7ake3fcqv70ool",
+      "startDate": "2026-06-25",
+      "dueDate": "2026-07-02",
+      "priority": "medium",
+      "notes": null,
+      "done": false,
+      "recurring": "monthly"
+    }
   ]
 }
